@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "96802732324",
+    "firebase_url": "https://outrank-ba748.firebaseio.com",
+    "project_id": "outrank-ba748",
+    "storage_bucket": "outrank-ba748.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:96802732324:android:78ef179c86474efe",
+        "android_client_info": {
+          "package_name": "io.github.jamiesanson.outrank"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "96802732324-0hkkksrjldaihvn0oob1k5kt1mtcdoqu.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDgbLerjLRfca_WaMBPORmj8IZqUq0LTds"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "96802732324-0hkkksrjldaihvn0oob1k5kt1mtcdoqu.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "96802732324-6gqs8k0rcf2ust4peoiue10mac7tk93g.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "io.github.jamiesanson.outrank"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
