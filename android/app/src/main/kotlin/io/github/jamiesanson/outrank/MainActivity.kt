@@ -1,4 +1,4 @@
-package com.example.outrank
+package io.github.jamiesanson.outrank
 
 import android.os.Bundle
 
