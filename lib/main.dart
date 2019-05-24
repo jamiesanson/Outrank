@@ -1,38 +1,66 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-void main() => runApp(MyApp());
+void main() => runApp(Outrank());
 
-class MyApp extends StatelessWidget {
+final ThemeData outrankTheme = new ThemeData(
+  brightness:     Brightness.light,
+  primaryColor:   Color(0xFF3B71DC),
+  accentColor:    Color(0xFFFFDA00),
+);
+
+class Outrank extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Outrank',
-      theme: ThemeData(
-        primarySwatch: Colors.green,
-      ),
-      home: OutrankHomePage(title: 'Outrank'),
+      theme: outrankTheme,
+      home: OutrankHomePage(),
     );
   }
 }
 
-class OutrankHomePage extends StatelessWidget {
-  OutrankHomePage({Key key, this.title}) : super(key: key);
+class OutrankHomePage extends StatefulWidget {
 
-  final String title;
+  @override
+  OutrankHomeState createState() => OutrankHomeState();
+}
+
+class OutrankHomeState extends State<OutrankHomePage> {
+
+  int _selectedIndex = 0;
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    
     return Scaffold(
-      appBar: AppBar(
-        title: Text(title),
-      ),
       body: UserList(),
+      bottomNavigationBar: BottomNavigationBar(
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.score),
+            title: Text('Rankings'),
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.book),
+            title: Text('Trade Me Rules'),
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.games),
+            title: Text('My games'),
+          ),
+        ],
+        currentIndex: _selectedIndex,
+        onTap: _onItemTapped,
+      ),
     );
   }
 }
-
 class UserList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
