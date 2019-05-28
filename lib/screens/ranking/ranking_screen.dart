@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:outrank/screens/intro/intro_screen.dart';
 
 class RankingScreen extends StatelessWidget {
   // Builds the user list widget containing everyones rankings
@@ -38,7 +39,7 @@ class RankingScreen extends StatelessWidget {
 
   // Builds the page header widget, with illustration, start game action and
   // whether or not the table's in use
-  Widget pageHeader() {
+  Widget pageHeader(BuildContext context) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: <Widget>[
@@ -63,7 +64,9 @@ class RankingScreen extends StatelessWidget {
                       "START PLAYING",
                       style: TextStyle(fontSize: 16, color: Colors.white),
                     ),
-                    onPressed: () {},
+                    onPressed: () {
+                        IntroDialog().show(context);
+                    },
                   ))),
         )
       ],
@@ -76,7 +79,7 @@ class RankingScreen extends StatelessWidget {
       body: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
-          Flexible(child: pageHeader(), flex: 5),
+          Flexible(child: pageHeader(context), flex: 5),
           Flexible(child: userList(), flex: 4)
         ],
       ),
