@@ -1,12 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/services.dart';
+import 'package:outrank/widgets/empty_app_bar.dart';
+
+// Screens
+import 'screens/ranking/ranking_screen.dart';
+import 'screens/games/games_screen.dart';
+import 'screens/rules/rules_screen.dart';
 
 void main() => runApp(Outrank());
 
 final ThemeData outrankTheme = new ThemeData(
   brightness:     Brightness.light,
   primaryColor:   Color(0xFF3B71DC),
-  accentColor:    Color(0xFFFFDA00),
+  accentColor:    Color(0xFF3B71DC),
 );
 
 class Outrank extends StatelessWidget {
@@ -36,10 +42,28 @@ class OutrankHomeState extends State<OutrankHomePage> {
     });
   }
 
+  Widget getCurrentScreen() {
+    switch (_selectedIndex) {
+      case 0: {
+        return RankingScreen();
+      }
+      case 1: {
+        return RulesScreen();
+      }
+      case 2: {
+        return GamesScreen();
+      }
+      default: {
+        throw Exception("Unexcected selected index: $_selectedIndex");
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: UserList(),
+      body: getCurrentScreen(),
+      appBar: EmptyAppBar(),
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
@@ -58,29 +82,6 @@ class OutrankHomeState extends State<OutrankHomePage> {
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
       ),
-    );
-  }
-}
-class UserList extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return StreamBuilder<QuerySnapshot>(
-      stream: Firestore.instance.collection('usergroups').document('lm3VNbV4vbfWdVwhY0w5').collection('users').snapshots(),
-      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-        if (snapshot.hasError)
-          return new Text('Error: ${snapshot.error}');
-        switch (snapshot.connectionState) {
-          case ConnectionState.waiting: return new Text('Loading...');
-          default:
-            return new ListView(
-              children: snapshot.data.documents.map((DocumentSnapshot document) {
-                return new ListTile(
-                  title: new Text(document['name']),
-                );
-              }).toList(),
-            );
-        }
-      },
     );
   }
 }
