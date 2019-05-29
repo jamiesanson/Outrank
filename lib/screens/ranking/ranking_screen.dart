@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:outrank/screens/intro/intro_screen.dart';
 
 class RankingScreen extends StatelessWidget {
   // Builds the user list widget containing everyones rankings
@@ -64,9 +63,7 @@ class RankingScreen extends StatelessWidget {
                       "START PLAYING",
                       style: TextStyle(fontSize: 16, color: Colors.white),
                     ),
-                    onPressed: () {
-                        IntroDialog().show(context);
-                    },
+                    onPressed: () {},
                   ))),
         )
       ],

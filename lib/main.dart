@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:outrank/screens/intro/onboarding_master_screen.dart';
 import 'package:outrank/widgets/empty_app_bar.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 // Screens
 import 'screens/ranking/ranking_screen.dart';
@@ -36,13 +38,28 @@ class OutrankHomeState extends State<OutrankHomePage> {
 
   int _selectedIndex = 0;
 
+  bool _onboarded;
+
+  @override
+  initState() {
+    super.initState();
+    _loadOnboardedState();
+  }
+
+  void _loadOnboardedState() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _onboarded = prefs.getString("office_id") != null && prefs.getString("user_id") != null;
+    });
+  }
+
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
     });
   }
 
-  Widget getCurrentScreen() {
+  Widget _getCurrentScreen() {
     switch (_selectedIndex) {
       case 0: {
         return RankingScreen();
@@ -59,10 +76,16 @@ class OutrankHomeState extends State<OutrankHomePage> {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
+  Widget _getOnboardingScreen() {
     return Scaffold(
-      body: getCurrentScreen(),
+      body: OnboardingScreen(),
+      appBar: EmptyAppBar(),
+    );
+  }
+
+  Widget _getOnboardedScreen() {
+    return Scaffold(
+      body: _getCurrentScreen(),
       appBar: EmptyAppBar(),
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
@@ -83,5 +106,25 @@ class OutrankHomeState extends State<OutrankHomePage> {
         onTap: _onItemTapped,
       ),
     );
+  }
+
+  Widget _getLoadingScreen() {
+    return Scaffold(
+      body: Center(
+        child: CircularProgressIndicator(),
+      ),
+      appBar: EmptyAppBar(),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_onboarded == null) {
+      return _getLoadingScreen();
+    } else if (_onboarded) {
+      return _getOnboardedScreen();
+    } else {
+      return _getOnboardingScreen();
+    }
   }
 }
