@@ -38,21 +38,6 @@ class OutrankHomeState extends State<OutrankHomePage> {
 
   int _selectedIndex = 0;
 
-  bool _onboarded;
-
-  @override
-  initState() {
-    super.initState();
-    _loadOnboardedState();
-  }
-
-  void _loadOnboardedState() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() {
-      _onboarded = prefs.getString("office_id") != null && prefs.getString("user_id") != null;
-    });
-  }
-
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
@@ -74,13 +59,6 @@ class OutrankHomeState extends State<OutrankHomePage> {
         throw Exception("Unexcected selected index: $_selectedIndex");
       }
     }
-  }
-
-  Widget _getOnboardingScreen() {
-    return Scaffold(
-      body: OnboardingScreen(),
-      appBar: EmptyAppBar(),
-    );
   }
 
   Widget _getOnboardedScreen() {
@@ -108,23 +86,8 @@ class OutrankHomeState extends State<OutrankHomePage> {
     );
   }
 
-  Widget _getLoadingScreen() {
-    return Scaffold(
-      body: Center(
-        child: CircularProgressIndicator(),
-      ),
-      appBar: EmptyAppBar(),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
-    if (_onboarded == null) {
-      return _getLoadingScreen();
-    } else if (_onboarded) {
-      return _getOnboardedScreen();
-    } else {
-      return _getOnboardingScreen();
-    }
+    return _getOnboardedScreen();
   }
 }

@@ -1,46 +1,81 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:outrank/model/office.dart';
+import 'package:outrank/widgets/backdrop.dart';
+import 'package:outrank/widgets/empty_app_bar.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class RankingScreen extends StatelessWidget {
+class RankingScreen extends StatefulWidget {
+  @override
+  State<StatefulWidget> createState() {
+    return RankingScreenState();
+  }
+}
+
+class RankingScreenState extends State<RankingScreen> {
+  Office _currentOffice;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCurrentOffice();
+  }
+
+  void _loadCurrentOffice() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    DocumentSnapshot doc;
+    if (prefs.containsKey("office_key")) {
+      doc = await Firestore.instance
+          .collection('offices')
+          .document(prefs.get("office_key"))
+          .get();
+    } else {
+      // Set a sane default
+      doc = await Firestore.instance
+          .collection('offices')
+          .getDocuments()
+          .then((val) {
+        return val.documents[0];
+      });
+      prefs.setString('office_key', doc.documentID);
+    }
+
+    setState(() {
+      _currentOffice = Office(doc);
+    });
+  }
+
   // Builds the user list widget containing everyones rankings
-  Widget userList() {
+  Widget _userList() {
     return Column(children: <Widget>[
-      Flexible(child: Text("This months top players"), flex: 1),
-      Flexible(
-          flex: 4,
-          child: Scaffold(
-              body: StreamBuilder<QuerySnapshot>(
-            stream: Firestore.instance
-                .collection('users')
-                .snapshots(),
-            builder:
-                (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-              if (snapshot.hasError)
-                return Text('Error: ${snapshot.error}');
-              switch (snapshot.connectionState) {
-                case ConnectionState.waiting:
-                  return Text('Loading...');
-                default:
-                  return ListView(
-                    children: snapshot.data.documents
-                        .map((DocumentSnapshot document) {
-                      return ListTile(
-                        title: Text(document['name']),
-                        subtitle: Text("${document['wins']} wins this month"),
-                      );
-                    }).toList(),
+      Text("This month's top players"),
+      StreamBuilder<QuerySnapshot>(
+        stream: Firestore.instance.collection('users').snapshots(),
+        builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+          if (snapshot.hasError) return Text('Error: ${snapshot.error}');
+          switch (snapshot.connectionState) {
+            case ConnectionState.waiting:
+              return Text('Loading...');
+            default:
+              return Column(
+                children:
+                    snapshot.data.documents.map((DocumentSnapshot document) {
+                  return ListTile(
+                    title: Text(document['name']),
+                    subtitle: Text("${document['wins']} wins this month"),
                   );
-              }
-            },
-          )))
+                }).toList(),
+              );
+          }
+        },
+      )
     ]);
   }
 
   // Builds the page header widget, with illustration, start game action and
   // whether or not the table's in use
-  Widget pageHeader(BuildContext context) {
+  Widget _pageHeader(BuildContext context) {
     return Column(
-      mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: <Widget>[
         Image.network(
           "https://www.trademe.co.nz/trust-safety/media/285465/kevin-nest-trademe.png",
@@ -70,16 +105,60 @@ class RankingScreen extends StatelessWidget {
     );
   }
 
+  Widget _getLoadingScreen() {
+    return Scaffold(
+      body: Center(
+        child: CircularProgressIndicator(),
+      ),
+      appBar: EmptyAppBar(),
+    );
+  }
+
+  Widget _getBackgroundView() {
+    return Scaffold(
+        body: StreamBuilder<QuerySnapshot>(
+      stream: Firestore.instance.collection('offices').snapshots(),
+      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+        if (snapshot.hasError) return Text('Error: ${snapshot.error}');
+        switch (snapshot.connectionState) {
+          case ConnectionState.waiting:
+            return Text('Loading...');
+          default:
+            return ListView(
+              children:
+                  snapshot.data.documents.map((DocumentSnapshot document) {
+                return ListTile(
+                  title: Text(document['name']),
+                );
+              }).toList(),
+            );
+        }
+      },
+    ));
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: <Widget>[
-          Flexible(child: pageHeader(context), flex: 5),
-          Flexible(child: userList(), flex: 4)
-        ],
-      ),
-    );
+    if (_currentOffice == null) {
+      return _getLoadingScreen();
+    } else {
+      return Backdrop(
+        currentOffice: _currentOffice,
+        frontLayer: SingleChildScrollView(
+          child: Column(
+            children: <Widget>[_pageHeader(context), _userList()],
+          ),
+        ),
+        backLayer: _getBackgroundView(),
+        frontTitle: Text(
+          _currentOffice.name,
+          style: TextStyle(fontSize: 16, color: Colors.black),
+        ),
+        backTitle: Text(
+          'Choose your office',
+          style: TextStyle(fontSize: 16, color: Colors.black),
+        ),
+      );
+    }
   }
 }
