@@ -45,6 +45,15 @@ class RankingScreenState extends State<RankingScreen> {
     });
   }
 
+  void _onOfficeSelected(Office office) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString("office_key", office.id);
+
+    setState(() {
+      _currentOffice = office;
+    });
+  }
+
   // Builds the user list widget containing everyones rankings
   Widget _userList() {
     return Column(children: <Widget>[
@@ -116,25 +125,34 @@ class RankingScreenState extends State<RankingScreen> {
 
   Widget _getBackgroundView() {
     return Scaffold(
+        backgroundColor: Colors.transparent,
         body: StreamBuilder<QuerySnapshot>(
-      stream: Firestore.instance.collection('offices').snapshots(),
-      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-        if (snapshot.hasError) return Text('Error: ${snapshot.error}');
-        switch (snapshot.connectionState) {
-          case ConnectionState.waiting:
-            return Text('Loading...');
-          default:
-            return ListView(
-              children:
-                  snapshot.data.documents.map((DocumentSnapshot document) {
-                return ListTile(
-                  title: Text(document['name']),
+          stream: Firestore.instance.collection('offices').snapshots(),
+          builder:
+              (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+            if (snapshot.hasError) return Text('Error: ${snapshot.error}');
+            switch (snapshot.connectionState) {
+              case ConnectionState.waiting:
+                return Text('Loading...');
+              default:
+                return ListView(
+                  children:
+                      snapshot.data.documents.map((DocumentSnapshot document) {
+                    return RadioListTile(
+                        title: Text(
+                          document['name'],
+                          style: TextStyle(color: Colors.white),),
+                        value: Office(document).id,
+                        groupValue: _currentOffice.id,
+                        activeColor: Colors.white,
+                        onChanged: (value) {
+                          _onOfficeSelected(Office(document));
+                        });
+                  }).toList(),
                 );
-              }).toList(),
-            );
-        }
-      },
-    ));
+            }
+          },
+        ));
   }
 
   @override
@@ -151,12 +169,12 @@ class RankingScreenState extends State<RankingScreen> {
         ),
         backLayer: _getBackgroundView(),
         frontTitle: Text(
-          _currentOffice.name,
-          style: TextStyle(fontSize: 16, color: Colors.black),
+          "Current: ${_currentOffice.name}",
+          style: TextStyle(fontSize: 16),
         ),
         backTitle: Text(
           'Choose your office',
-          style: TextStyle(fontSize: 16, color: Colors.black),
+          style: TextStyle(fontSize: 16),
         ),
       );
     }

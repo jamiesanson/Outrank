@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:outrank/screens/intro/onboarding_master_screen.dart';
 import 'package:outrank/widgets/empty_app_bar.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 // Screens
 import 'screens/ranking/ranking_screen.dart';
@@ -64,6 +62,7 @@ class OutrankHomeState extends State<OutrankHomePage> {
   Widget _getOnboardedScreen() {
     return Scaffold(
       body: _getCurrentScreen(),
+      backgroundColor: Color(0xFF3B71DC),
       appBar: EmptyAppBar(),
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[

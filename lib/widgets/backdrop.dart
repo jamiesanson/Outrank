@@ -33,7 +33,10 @@ class _FrontLayer extends StatelessWidget {
     return Material(
       elevation: 16.0,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.only(topLeft: Radius.circular(24.0)),
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(24.0),
+          topRight: Radius.circular(24.0),
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -42,12 +45,18 @@ class _FrontLayer extends StatelessWidget {
             behavior: HitTestBehavior.opaque,
             onTap: onTap,
             child: Container(
-              height: 40.0,
+              height: 0.0,
               alignment: AlignmentDirectional.centerStart,
             ),
           ),
           Expanded(
-            child: child,
+            child: ClipRRect(
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(24.0),
+                topRight: Radius.circular(24.0),
+              ),
+              child: child,
+            ),
           ),
         ],
       ),
@@ -85,10 +94,10 @@ class _BackdropTitle extends AnimatedWidget {
           child: IconButton(
             padding: EdgeInsets.only(right: 8.0),
             onPressed: this.onPress,
-            icon: Opacity(
-                opacity: animation.value,
-                child: Icon(Icons.menu, color: Colors.black,),
-              ),
+            icon: AnimatedIcon(
+              icon: AnimatedIcons.close_menu,
+              progress: animation,
+            ),
           ),
         ),
         // Here, we do a custom cross fade between backTitle and frontTitle.
@@ -107,8 +116,7 @@ class _BackdropTitle extends AnimatedWidget {
                 ).evaluate(animation),
                 child: Semantics(
                     label: 'hide office menu',
-                    child: ExcludeSemantics(child: backTitle)
-                ),
+                    child: ExcludeSemantics(child: backTitle)),
               ),
             ),
             Opacity(
@@ -123,8 +131,7 @@ class _BackdropTitle extends AnimatedWidget {
                 ).evaluate(animation),
                 child: Semantics(
                     label: 'show office menu',
-                    child: ExcludeSemantics(child: frontTitle)
-                ),
+                    child: ExcludeSemantics(child: frontTitle)),
               ),
             ),
           ],
@@ -238,20 +245,20 @@ class _BackdropState extends State<Backdrop>
   @override
   Widget build(BuildContext context) {
     var appBar = AppBar(
-      brightness: Brightness.light,
-      elevation: 0.0,
-      titleSpacing: 0.0,
-      backgroundColor: Colors.transparent,
-      title: _BackdropTitle(
-        listenable: _controller.view,
-        onPress: _toggleBackdropLayerVisibility,
-        frontTitle: widget.frontTitle,
-        backTitle: widget.backTitle,
-      )
-    );
+        brightness: Brightness.light,
+        elevation: 0.0,
+        titleSpacing: 0.0,
+        backgroundColor: Colors.transparent,
+        title: _BackdropTitle(
+          listenable: _controller.view,
+          onPress: _toggleBackdropLayerVisibility,
+          frontTitle: widget.frontTitle,
+          backTitle: widget.backTitle,
+        ));
 
     return Scaffold(
       appBar: appBar,
+      backgroundColor: Colors.transparent,
       body: LayoutBuilder(
         builder: _buildStack,
       ),
