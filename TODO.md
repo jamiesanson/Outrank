@@ -8,7 +8,7 @@ There's a bunch of things I want to get done before being ready to go:
 * How will ranking work? Wins? Elo?
 
 Plan of attack:
-* Onboarding, choose your office, put in your name and username
+* Onboarding - not needed. Start as anon, choose a name at the end of your first game that 
 * Homescreen where you can choose your office
 * Trade Me rules, markdown rule set held in firestore, or storage?
 * My games, has a history of your previous games, changes in score and total score.
