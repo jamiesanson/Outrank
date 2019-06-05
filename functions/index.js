@@ -8,6 +8,11 @@ const glickoDefaults = {};
 
 // ---------------------------------------------
 // Rank updating function
+// 
+// On every new result logged, this function is called. It gets the
+// players current ratings from Firestore and runs them through a 
+// single iteration of the Glicko-2 algorithm. The results are then
+// fed back in to Firestore, and logged to console.
 // ---------------------------------------------
 exports.updateUserRankingsOnResult = functions.firestore
     .document('results/{resultId}')
