@@ -1,0 +1,17 @@
+{
+  "name": "storage",
+  "description": "Cloud storage files for Outrank",
+  "main": "index.js",
+  "author": "@jamiesanson",
+  "version": "1.0.0",
+  "engines": {
+    "node": "8"
+  },
+  "scripts": {
+    "publish": "npm upload.js"
+  },
+  "dependencies": {
+    "firebase-admin": "^7.0.0"
+  },
+  "private": true
+}

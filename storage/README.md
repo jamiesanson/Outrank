@@ -1,0 +1,2 @@
+# Outrank storage
+This directory contains a basic node project with the static content in Firebase cloud storage. To publish, make and save changes to the documents in the data directory, then run `node upload.js`. Before you do so, make sure to get a copy of the service account credentials and save them to `../credentials/serviceAccount.json`
