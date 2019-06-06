@@ -36,7 +36,7 @@ class RulesState extends State<RulesScreen> {
     // Update the file
     await FirebaseStorage.instance
         .ref()
-        .child("rules.md")
+        .child("static/rules.md")
         .writeToFile(rulesFile)
         .future;
 

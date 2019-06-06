@@ -2,12 +2,14 @@ var admin = require("firebase-admin");
 
 var serviceAccount = require("../credentials/serviceAccount.json");
 
+const bucketUrl = "gs://outrank-ba748.appspot.com/";
+
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
   databaseURL: "https://outrank-ba748.firebaseio.com"
 });
 
-const storage = admin.storage().bucket("gs://outrank-ba748.appspot.com/");
+const storage = admin.storage().bucket(bucketUrl);
 
 // Recursively traverse data/ and upload in the same pattern to Firebase storage
 var walkSync = function(dir, filelist) {
@@ -26,11 +28,11 @@ var walkSync = function(dir, filelist) {
     return filelist;
 };
 
-var filePaths = walkSync("data")
+var filePaths = walkSync("static")
 
 filePaths.forEach(function(path) {
-        storage.upload("data/" + path, { "destination": path }).then(function(snapshot) {
-            console.log("Uploaded file from data/" + path + " to " + path);
+        storage.upload("static/" + path, { "destination": "static/" + path }).then(function(snapshot) {
+            console.log("Uploaded file from static/" + path + " to static/" + path + " in bucket " + bucketUrl);
         });
     });
 
