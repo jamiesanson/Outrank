@@ -9,6 +9,7 @@ There's a bunch of things I want to get done before being ready to go:
 
 Plan of attack:
 * Onboarding - not needed. Start as anon, choose a name at the end of your first game that 
-* Homescreen where you can choose your office
-* Trade Me rules, markdown rule set held in firestore, or storage?
+* Homescreen where you can choose your office (/)
+* Trade Me rules, markdown rule set held in firestore, or storage? (/) This is now automated, running `node storage/upload.js`
 * My games, has a history of your previous games, changes in score and total score.
+* Rating system - part way there. Needs tweaking and results agregation.
