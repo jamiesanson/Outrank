@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:outrank/model/game.dart';
 import 'package:outrank/model/office.dart';
 import 'package:outrank/widgets/backdrop.dart';
 import 'package:outrank/widgets/empty_app_bar.dart';
@@ -40,8 +41,10 @@ class RankingScreenState extends State<RankingScreen> {
       prefs.setString('office_key', doc.documentID);
     }
 
+    Office office = Office(doc);
+
     setState(() {
-      _currentOffice = Office(doc);
+      _currentOffice = office;
     });
   }
 
@@ -91,25 +94,52 @@ class RankingScreenState extends State<RankingScreen> {
           width: 200,
           height: 200,
         ),
-        Text("The table is free!"),
-        Padding(
-          padding: EdgeInsets.all(16),
-          child: Center(
-              child: Material(
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16.0)),
-                  color: Color(0xFF3B71DC),
-                  clipBehavior: Clip.antiAlias, // Add This
-                  child: MaterialButton(
-                    minWidth: 300,
-                    height: 48,
-                    child: Text(
-                      "START PLAYING",
-                      style: TextStyle(fontSize: 16, color: Colors.white),
-                    ),
-                    onPressed: () {},
-                  ))),
-        )
+        StreamBuilder<QuerySnapshot>(
+          stream: Firestore.instance.collection('games').snapshots(),
+          builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+            if (snapshot.hasError) return Text('Error: ${snapshot.error}');
+            switch (snapshot.connectionState) {
+              case ConnectionState.waiting:
+                return Text('');
+              default:
+                DocumentSnapshot gameDoc = snapshot.data.documents.singleWhere(
+                  (game) { return Game(game).officeRef.documentID == _currentOffice.id; },
+                  orElse: () { return null; });
+                Game currentGame = gameDoc == null ? null : Game(gameDoc);
+
+                String tableText = currentGame == null ? "The table is free!" : "Game in progress";
+
+                return Column(
+                  children: <Widget>[
+                    Text(tableText),
+                    Padding(
+                      padding: EdgeInsets.all(16),
+                      child: Center(
+                          child: Material(
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16.0)),
+                              color: Color(0xFF3B71DC),
+                              clipBehavior: Clip.antiAlias, // Add This
+                              child: MaterialButton(
+                                minWidth: 300,
+                                height: 48,
+                                child: Text(
+                                  "START PLAYING",
+                                  style: TextStyle(fontSize: 16, color: Colors.white),
+                                ),
+                                onPressed: () {
+                                  // Check state of game to make sure it's possible to start playing now
+
+                                  // Route to game screen
+                                },
+                              ))),
+                    )
+                  ]
+                );
+            }
+          },
+        ),
+        
       ],
     );
   }
@@ -133,7 +163,7 @@ class RankingScreenState extends State<RankingScreen> {
             if (snapshot.hasError) return Text('Error: ${snapshot.error}');
             switch (snapshot.connectionState) {
               case ConnectionState.waiting:
-                return Text('Loading...');
+                return Text('');
               default:
                 return ListView(
                   children:
