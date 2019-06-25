@@ -72,9 +72,12 @@ class RankingScreenState extends State<RankingScreen> {
               return Column(
                 children:
                     snapshot.data.documents.map((DocumentSnapshot document) {
+                  String subtitleText = document['gameCount'] != null
+                      ? "${document['gameCount']} games played this month"
+                      : "No games this month";
                   return ListTile(
                     title: Text(document['name']),
-                    subtitle: Text("${document['wins']} wins this month"),
+                    subtitle: Text(subtitleText),
                   );
                 }).toList(),
               );
@@ -96,50 +99,55 @@ class RankingScreenState extends State<RankingScreen> {
         ),
         StreamBuilder<QuerySnapshot>(
           stream: Firestore.instance.collection('games').snapshots(),
-          builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+          builder:
+              (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
             if (snapshot.hasError) return Text('Error: ${snapshot.error}');
-            switch (snapshot.connectionState) {
-              case ConnectionState.waiting:
-                return Text('');
-              default:
-                DocumentSnapshot gameDoc = snapshot.data.documents.singleWhere(
-                  (game) { return Game(game).officeRef.documentID == _currentOffice.id; },
-                  orElse: () { return null; });
-                Game currentGame = gameDoc == null ? null : Game(gameDoc);
 
-                String tableText = currentGame == null ? "The table is free!" : "Game in progress";
+            bool loading = snapshot.connectionState == ConnectionState.waiting;
 
-                return Column(
-                  children: <Widget>[
-                    Text(tableText),
-                    Padding(
-                      padding: EdgeInsets.all(16),
-                      child: Center(
-                          child: Material(
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(16.0)),
-                              color: Color(0xFF3B71DC),
-                              clipBehavior: Clip.antiAlias, // Add This
-                              child: MaterialButton(
-                                minWidth: 300,
-                                height: 48,
-                                child: Text(
-                                  "START PLAYING",
-                                  style: TextStyle(fontSize: 16, color: Colors.white),
-                                ),
-                                onPressed: () {
-                                  // Check state of game to make sure it's possible to start playing now
+            DocumentSnapshot gameDoc =
+                loading ? null : snapshot.data.documents.singleWhere((game) {
+              return Game(game).officeRef.documentID == _currentOffice.id;
+            }, orElse: () {
+              return null;
+            });
 
-                                  // Route to game screen
-                                },
-                              ))),
-                    )
-                  ]
-                );
+            Game currentGame = gameDoc == null ? null : Game(gameDoc);
+
+            String tableText =
+                currentGame == null ? "The table is free!" : "Game in progress";
+
+            if (loading) {
+              tableText = "Loading";
             }
+
+            return Column(children: <Widget>[
+              Text(tableText),
+              Padding(
+                padding: EdgeInsets.all(16),
+                child: Center(
+                    child: Material(
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16.0)),
+                        color: Color(0xFF3B71DC),
+                        clipBehavior: Clip.antiAlias, 
+                        child: MaterialButton(
+                          minWidth: 300,
+                          height: 48,
+                          child: Text(
+                            "START PLAYING",
+                            style: TextStyle(fontSize: 16, color: Colors.white),
+                          ),
+                          onPressed: loading ? null : () {
+                            // Check state of game to make sure it's possible to start playing now
+
+                            // Route to game screen
+                          },
+                        ))),
+              )
+            ]);
           },
         ),
-        
       ],
     );
   }
@@ -171,7 +179,8 @@ class RankingScreenState extends State<RankingScreen> {
                     return RadioListTile(
                         title: Text(
                           document['name'],
-                          style: TextStyle(color: Colors.white),),
+                          style: TextStyle(color: Colors.white),
+                        ),
                         value: Office(document).id,
                         groupValue: _currentOffice.id,
                         activeColor: Colors.white,
