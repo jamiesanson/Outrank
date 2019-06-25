@@ -13,3 +13,8 @@ Plan of attack:
 * Trade Me rules, markdown rule set held in firestore, or storage? (/) This is now automated, running `node storage/upload.js`
 * My games, has a history of your previous games, changes in score and total score.
 * Rating system - part way there. Needs tweaking and results agregation.
+* Need to add Games to repository
+* Need to wire repository up to BloC
+* Need to wire BloC up to screen
+* Navigation is needed - named routes?
+
