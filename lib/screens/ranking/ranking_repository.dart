@@ -5,11 +5,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class RankingRepository {
   final BehaviorSubject<String> _officeSubject = BehaviorSubject<String>();
-  final BehaviorSubject<List<Office>> _allOfficesSubject = BehaviorSubject<List<Office>>();
 
-  Stream<List<Office>> get allOffices => _allOfficesSubject.stream;
+  Stream<List<Office>> get allOffices => Firestore.instance.collection('offices').snapshots().map((query) {
+    return query.documents.map((doc) { return doc == null ? null : Office(doc); }).toList();
+  });
 
-  Stream<Office> get currentOffice => _officeSubject.withLatestFrom(_allOfficesSubject, (id, offices) {
+  Stream<Office> get currentOffice => Observable.combineLatest2(_officeSubject, allOffices, (id, offices) {
+    print("Updating to id: $id");
     return offices.firstWhere((office) { return office.id == id; });
   });
 
@@ -18,12 +20,12 @@ class RankingRepository {
         return query.documents;
       }).map((documents) {
         return documents.singleWhere((game) {
-          return Game(game).officeRef.documentID == _officeSubject.value.id;
+          return Game(game).officeRef.documentID == _officeSubject.value;
         }, orElse: () {
           return null;
         });
       }).map((document) {
-        return Game(document);
+        return document == null ? null : Game(document);
       });
 
   Future<String> _loadOfficeKey() async {
@@ -45,12 +47,9 @@ class RankingRepository {
   void fetch() async {
     // Load the first office
     _officeSubject.add(await _loadOfficeKey());
-
-    // 
   }
   
   void updateOffice(Office newOffice) {
     _officeSubject.add(newOffice.id);
-
   }
 }

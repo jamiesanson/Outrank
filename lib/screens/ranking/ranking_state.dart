@@ -13,12 +13,21 @@ class RanksLoading extends RankScreenState {}
 class RanksLoaded extends RankScreenState {
 
   final Office office;
+  final List<Office> allOffices;
   final Game currentGame;
   final List<User> users;
 
-  RanksLoaded(this.office, this.currentGame, this.users): super(
-    [office, currentGame, users]
+  RanksLoaded(this.office, this.allOffices, this.currentGame, this.users): super(
+    [office, allOffices, currentGame, users]
   );
+
+  RanksLoaded update({Office office, List<Office> allOffices, Game game, List<User> users}) =>
+    RanksLoaded(
+      office == null ? this.office : office,
+      allOffices == null ? this.allOffices : allOffices,
+      game == null ? this.currentGame : game,
+      users == null ? this.users : users
+    );
 }
 
 class RanksNotLoaded extends RankScreenState {}

@@ -17,8 +17,20 @@ class OfficeChanged extends RankScreenEvent {
   OfficeChanged(this.office): super([office]);
 }
 
+class OfficeUpdated extends RankScreenEvent {
+  final Office office;
+
+  OfficeUpdated(this.office): super([office]);
+}
+
 class GameUpdated extends RankScreenEvent {
   final Game game;
 
   GameUpdated(this.game): super([game]);
+}
+
+class UsersUpdated extends RankScreenEvent {
+  final List<User> users;
+
+  UsersUpdated(this.users): super([users]);
 }

@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:outrank/screens/ranking/ranking_bloc.dart';
+import 'package:outrank/screens/ranking/ranking_repository.dart';
 import 'package:outrank/widgets/empty_app_bar.dart';
 
 // Screens
@@ -10,30 +13,34 @@ import 'screens/rules/rules_screen.dart';
 void main() => runApp(Outrank());
 
 final ThemeData outrankTheme = new ThemeData(
-  brightness:     Brightness.light,
-  primaryColor:   Color(0xFF3B71DC),
-  accentColor:    Color(0xFF3B71DC),
+  brightness: Brightness.light,
+  primaryColor: Color(0xFF3B71DC),
+  accentColor: Color(0xFF3B71DC),
 );
 
 class Outrank extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Outrank',
-      theme: outrankTheme,
-      home: OutrankHomePage(),
-    );
+    return ImmutableProviderTree(
+        immutableProviders: [
+          ImmutableProvider<RankingRepository>(
+            value: RankingRepository(),
+          ),
+        ],
+        child: MaterialApp(
+          title: 'Outrank',
+          theme: outrankTheme,
+          home: OutrankHomePage(),
+        ));
   }
 }
 
 class OutrankHomePage extends StatefulWidget {
-
   @override
   OutrankHomeState createState() => OutrankHomeState();
 }
 
 class OutrankHomeState extends State<OutrankHomePage> {
-
   int _selectedIndex = 0;
 
   void _onItemTapped(int index) {
@@ -44,18 +51,25 @@ class OutrankHomeState extends State<OutrankHomePage> {
 
   Widget _getCurrentScreen() {
     switch (_selectedIndex) {
-      case 0: {
-        return RankingScreen();
-      }
-      case 1: {
-        return RulesScreen();
-      }
-      case 2: {
-        return GamesScreen();
-      }
-      default: {
-        throw Exception("Unexcected selected index: $_selectedIndex");
-      }
+      case 0:
+        {
+          return BlocProvider(
+            builder: (BuildContext context) => RankingBloc(ImmutableProvider.of(context)),
+            child: RankingScreen()
+          );
+        }
+      case 1:
+        {
+          return RulesScreen();
+        }
+      case 2:
+        {
+          return GamesScreen();
+        }
+      default:
+        {
+          throw Exception("Unexcected selected index: $_selectedIndex");
+        }
     }
   }
 
