@@ -14,8 +14,19 @@ Plan of attack:
 * My games, has a history of your previous games, changes in score and total score.
 * Rating system - part way there. Needs tweaking and results agregation.
 
-* Need to add Games to repository
-* Behaviour when office changes on the backend (pops open drawer)
-* Switching back and forth between tabs means lots of calls to update (maybe need to dispose/not dispose bloc?)
 * Navigation is needed - named routes?
+* Keep Ranking screen widget alive when switching tabs
+* Cloud function for starting game
+* Authentication!!!
+* My games screen - list of past matches
+
+
+* Firebase auth implementation:
+  * Sign in with Slack
+  * Send custom Slack token to cloud function
+  * Function creates account with UID == Slack UID
+  * Send custom token to client
+  * Client authenticates with custom token
+  * If new user (no name): Call function to populate account with Slack token. Firebase creates user in store with that ID if not exists, populates users name and profile image
+  * Auth is rule-based based on Firebase UID
 

@@ -25,6 +25,7 @@ dependencies:
   cloud_firestore: ^0.11.0
   cloud_functions: ^0.3.0+1
   firebase_storage: ^3.0.0
+  firebase_auth: ^0.11.1+7
 
   flutter_markdown: ^0.2.0
 
