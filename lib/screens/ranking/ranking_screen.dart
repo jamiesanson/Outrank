@@ -86,10 +86,30 @@ class Loaded extends StatelessWidget {
     ]);
   }
 
+  String _tableTextForGame(Game game) {
+    switch (game.state) {
+      case GameState.empty: return "The table is free!";
+      case GameState.waiting_for_opponent: return "A game is about to start";
+      case GameState.in_progress: return "A game is in progress";
+      case GameState.waiting_on_result: return "A game is about to end";
+      default: return "Something weird happened. A game might be in progess";
+    }
+  }
+
+  String _buttonTextForGame(Game game) {
+    switch (game.state) {
+      case GameState.waiting_for_opponent: return game.op1Name != null ? "PLAY ${game.op1Name.toUpperCase()}" : "JOIN GAME";
+      default: return "START PLAYING";
+    }
+  }
+
   // Builds the page header widget, with illustration, start game action and
   // whether or not the table's in use
   Widget _pageHeader(Office office, Game game, VoidCallback onStartPressed) {
-    String tableText = game.state == GameState.empty ? "The table is free!" : "Game in progress";
+
+    String tableText = _tableTextForGame(game);
+    String buttonText = _buttonTextForGame(game);
+    bool isButtonDisabled = game.state == GameState.in_progress || game.state == GameState.waiting_on_result;
 
     return Column(
       children: <Widget>[
@@ -111,10 +131,10 @@ class Loaded extends StatelessWidget {
                     minWidth: 300,
                     height: 48,
                     child: Text(
-                      "START PLAYING",
+                      buttonText,
                       style: TextStyle(fontSize: 16, color: Colors.white),
                     ),
-                    onPressed: () {
+                    onPressed: isButtonDisabled ? null : () {
                       onStartPressed();
                     },
                   ))),
