@@ -47,8 +47,9 @@ class RankingBloc extends Bloc<RankScreenEvent, RankScreenState> {
         Office currentOffice = await _rankingRepository.currentOffice.first;
         List<Office> allOffices = await _rankingRepository.allOffices.first;
         Game currentGame = await _rankingRepository.game.isEmpty ? null : await _rankingRepository.game.first;
+        List<User> topUsers = await _rankingRepository.topUsers.first;
 
-        yield RanksLoaded(currentOffice, allOffices, currentGame, List.of([]));
+        yield RanksLoaded(currentOffice, allOffices, currentGame, topUsers);
 
         // Clear subscriptions and observe repo
         subscriptions.clear();
@@ -58,6 +59,10 @@ class RankingBloc extends Bloc<RankScreenEvent, RankScreenState> {
 
         subscriptions.add(_rankingRepository.game.listen((game) {
           dispatch(GameUpdated(game));
+        }));
+
+        subscriptions.add(_rankingRepository.topUsers.listen((users) {
+          dispatch(UsersUpdated(users));
         }));
       } catch (e) {
         // TODO: Log this as a non-fatal
