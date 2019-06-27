@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:outrank/screens/ranking/ranking_bloc.dart';
-import 'package:outrank/screens/ranking/ranking_repository.dart';
+import 'package:outrank/screens/ranking/bloc/bloc.dart';
+import 'package:outrank/screens/ranking/bloc/ranking_repository.dart';
 import 'package:outrank/widgets/empty_app_bar.dart';
 
 // Screens

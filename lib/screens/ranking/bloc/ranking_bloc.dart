@@ -1,10 +1,9 @@
 import 'dart:async';
 
 import 'package:outrank/model/model.dart';
-import 'package:outrank/screens/ranking/ranking_event.dart';
-import 'package:outrank/screens/ranking/ranking_repository.dart';
-import 'package:outrank/screens/ranking/ranking_state.dart';
+import 'package:outrank/screens/ranking/bloc/bloc.dart';
 import 'package:bloc/bloc.dart';
+import 'package:outrank/screens/ranking/bloc/ranking_repository.dart';
 import 'package:rxdart/rxdart.dart';
 
 class RankingBloc extends Bloc<RankScreenEvent, RankScreenState> {

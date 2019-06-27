@@ -3,9 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:outrank/model/game.dart';
 import 'package:outrank/model/office.dart';
 import 'package:outrank/model/user.dart';
-import 'package:outrank/screens/ranking/ranking_bloc.dart';
-import 'package:outrank/screens/ranking/ranking_event.dart';
-import 'package:outrank/screens/ranking/ranking_state.dart';
+import 'package:outrank/screens/ranking/bloc/bloc.dart';
 import 'package:outrank/widgets/backdrop.dart';
 import 'package:outrank/widgets/empty_app_bar.dart';
 
@@ -91,10 +89,7 @@ class Loaded extends StatelessWidget {
   // Builds the page header widget, with illustration, start game action and
   // whether or not the table's in use
   Widget _pageHeader(Office office, Game game, VoidCallback onStartPressed) {
-    // TODO: Base this on game state
     String tableText = game.state == GameState.empty ? "The table is free!" : "Game in progress";
-
-    print("Page header render: ${game.state}");
 
     return Column(
       children: <Widget>[
