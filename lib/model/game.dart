@@ -6,10 +6,10 @@ class Game {
   final DocumentReference officeRef;
 
   final DocumentReference op1Ref;
-
   final String op1Name;
 
   final DocumentReference op2Ref;
+  final String op2Name;
 
   final DocumentReference op1ResultRef;
 
@@ -47,6 +47,7 @@ class Game {
     this.op1Ref = null,
     this.op1Name = null,
     this.op2Ref = null,
+    this.op2Name = null,
     this.op1ResultRef = null,
     this.op2ResultRef = null;
 
@@ -55,6 +56,7 @@ class Game {
     this.op1Ref = snapshot.data["op_1"],
     this.op1Name = snapshot.data["op_1_name"],
     this.op2Ref = snapshot.data["op_2"],
+    this.op2Name = snapshot.data["op_2_name"],
     this.op1ResultRef = snapshot.data["op_1_result"],
     this.op2ResultRef = snapshot.data["op_1_result"];
 }
