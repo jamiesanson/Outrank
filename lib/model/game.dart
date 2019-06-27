@@ -16,6 +16,11 @@ class Game {
   GameState get state => _processState();
 
   GameState _processState() {
+    // If there's no office or no opponents, let the game be joinable
+    if (officeRef == null || (op1Ref == null && op2Ref == null)) {
+      return GameState.empty;
+    }
+
     if (op1Ref != null && op2Ref == null) {
       return GameState.waiting_for_opponent;
     }
@@ -31,6 +36,17 @@ class Game {
     return GameState.unknown;
   }
 
+  static Game empty() {
+    return Game._();
+  }
+
+  Game._(): 
+    this.officeRef = null,
+    this.op1Ref = null,
+    this.op2Ref = null,
+    this.op1ResultRef = null,
+    this.op2ResultRef = null;
+
   Game(DocumentSnapshot snapshot) : 
     this.officeRef = snapshot.data["office"],
     this.op1Ref = snapshot.data["op_1"],
@@ -41,6 +57,7 @@ class Game {
 
 enum GameState {
    unknown, 
+   empty,
    waiting_for_opponent, 
    in_progress, 
    waiting_on_result 

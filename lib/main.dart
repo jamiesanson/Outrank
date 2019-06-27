@@ -43,6 +43,11 @@ class OutrankHomePage extends StatefulWidget {
 class OutrankHomeState extends State<OutrankHomePage> {
   int _selectedIndex = 0;
 
+  Widget _rankingScreen = BlocProvider(
+            builder: (BuildContext context) => RankingBloc(ImmutableProvider.of(context)),
+            child: RankingScreen()
+          );
+
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
@@ -53,10 +58,7 @@ class OutrankHomeState extends State<OutrankHomePage> {
     switch (_selectedIndex) {
       case 0:
         {
-          return BlocProvider(
-            builder: (BuildContext context) => RankingBloc(ImmutableProvider.of(context)),
-            child: RankingScreen()
-          );
+          return _rankingScreen;
         }
       case 1:
         {

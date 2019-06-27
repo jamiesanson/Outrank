@@ -17,6 +17,20 @@ class RankingBloc extends Bloc<RankScreenEvent, RankScreenState> {
   RankScreenState get initialState => RanksLoading();
 
   @override
+  void dispose() {
+    super.dispose();
+    subscriptions.dispose();
+  }
+  
+  @override
+  Stream<RankScreenState> transform(events, next) {
+    return super.transform(
+      (events as Observable<RankScreenEvent>).distinct(),
+      next,
+    );
+  }
+
+  @override
   Stream<RankScreenState> mapEventToState(RankScreenEvent event) async* {
     // User input events
     if (event is OfficeChanged) {
@@ -40,7 +54,6 @@ class RankingBloc extends Bloc<RankScreenEvent, RankScreenState> {
         // Clear subscriptions and observe repo
         subscriptions.clear();
         subscriptions.add(_rankingRepository.currentOffice.listen((office) {
-          print("New office: ${office.name}");
           dispatch(OfficeUpdated(office));
         }));
 
@@ -62,7 +75,6 @@ class RankingBloc extends Bloc<RankScreenEvent, RankScreenState> {
       }
 
       if (event is OfficeChanged) {
-        print("Updating repo");
         // Update the repo
         _rankingRepository.updateOffice(event.office);
       }

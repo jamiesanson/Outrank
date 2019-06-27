@@ -13,7 +13,9 @@ class RankingScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final RankingBloc _rankingBloc = BlocProvider.of<RankingBloc>(context);
-    _rankingBloc.dispatch(FetchAll());
+    if (!(_rankingBloc.currentState is RanksLoaded)) {
+      _rankingBloc.dispatch(FetchAll());
+    }
 
     return BlocBuilder(
       bloc: _rankingBloc,
@@ -90,7 +92,9 @@ class Loaded extends StatelessWidget {
   // whether or not the table's in use
   Widget _pageHeader(Office office, Game game, VoidCallback onStartPressed) {
     // TODO: Base this on game state
-    String tableText = game == null ? "The table is free!" : "Game in progress";
+    String tableText = game.state == GameState.empty ? "The table is free!" : "Game in progress";
+
+    print("Page header render: ${game.state}");
 
     return Column(
       children: <Widget>[
@@ -166,7 +170,6 @@ class Loaded extends StatelessWidget {
             ),
             backLayer:
                 _getBackgroundView(state.office, state.allOffices, (office) {
-                  print("Updating office to: ${office.name}");
               _rankingBloc.dispatch(OfficeChanged(office));
             }),
             frontTitle: Text(

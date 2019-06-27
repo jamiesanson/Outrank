@@ -11,22 +11,16 @@ class RankingRepository {
   });
 
   Stream<Office> get currentOffice => Observable.combineLatest2(_officeSubject, allOffices, (id, offices) {
-    print("Updating to id: $id");
     return offices.firstWhere((office) { return office.id == id; });
   });
 
-  Stream<Game> get game =>
-      Firestore.instance.collection('games').snapshots().map((query) {
-        return query.documents;
-      }).map((documents) {
-        return documents.singleWhere((game) {
-          return Game(game).officeRef.documentID == _officeSubject.value;
-        }, orElse: () {
-          return null;
-        });
-      }).map((document) {
-        return document == null ? null : Game(document);
+  Stream<List<Game>> get allGames => Firestore.instance.collection('games').snapshots().map((query) {
+        return query.documents.map((doc) { return doc == null ? null : Game(doc); }).toList();
       });
+
+  Stream<Game> get game => Observable.combineLatest2(allGames, currentOffice, (games, office) {
+    return games.firstWhere((game) { return game.officeRef.documentID == office.id; }, orElse: () { return Game.empty(); });
+  });
 
   Future<String> _loadOfficeKey() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -49,7 +43,11 @@ class RankingRepository {
     _officeSubject.add(await _loadOfficeKey());
   }
   
-  void updateOffice(Office newOffice) {
+  void updateOffice(Office newOffice) async {
+    // Update the users preference
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString("office_key", newOffice.id);
+
     _officeSubject.add(newOffice.id);
   }
 }

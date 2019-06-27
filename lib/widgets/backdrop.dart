@@ -189,7 +189,7 @@ class _BackdropState extends State<Backdrop>
   void didUpdateWidget(Backdrop old) {
     super.didUpdateWidget(old);
 
-    if (widget.currentOffice != old.currentOffice) {
+    if (widget.currentOffice.id != old.currentOffice.id) {
       _toggleBackdropLayerVisibility();
     } else if (!_frontLayerVisible) {
       _controller.fling(velocity: _kFlingVelocity);
