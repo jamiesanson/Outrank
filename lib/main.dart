@@ -1,22 +1,21 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:outrank/screens/ranking/bloc/bloc.dart';
 import 'package:outrank/screens/ranking/bloc/ranking_repository.dart';
-import 'package:outrank/widgets/empty_app_bar.dart';
+import 'package:outrank/screens/routes.dart';
+import 'package:outrank/themes.dart';
+import 'package:outrank/util/logging_bloc_delegate.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import 'package:bloc/bloc.dart';
 
 // Screens
-import 'screens/ranking/ranking_screen.dart';
-import 'screens/games/games_screen.dart';
-import 'screens/rules/rules_screen.dart';
+import 'constants.dart';
+import 'screens/splash/splash_screen.dart';
 
-void main() => runApp(Outrank());
-
-final ThemeData outrankTheme = new ThemeData(
-  brightness: Brightness.light,
-  primaryColor: Color(0xFF3B71DC),
-  accentColor: Color(0xFF3B71DC),
-);
+void main() {
+  BlocSupervisor.delegate = LoggingBlocDelegate();
+  runApp(AppStateContainer(child: Outrank()));
+}
 
 class Outrank extends StatelessWidget {
   @override
@@ -29,80 +28,79 @@ class Outrank extends StatelessWidget {
         ],
         child: MaterialApp(
           title: 'Outrank',
-          theme: outrankTheme,
-          home: OutrankHomePage(),
+          theme: AppStateContainer.of(context).theme,
+          home: SplashScreen(),
+          routes: Routes.mainRoutes,
         ));
   }
 }
 
-class OutrankHomePage extends StatefulWidget {
+/// top level widget to hold application state
+/// state is passed down with an inherited widget
+class AppStateContainer extends StatefulWidget {
+  final Widget child;
+
+  AppStateContainer({@required this.child});
+
   @override
-  OutrankHomeState createState() => OutrankHomeState();
+  _AppStateContainerState createState() => _AppStateContainerState();
+
+  static _AppStateContainerState of(BuildContext context) {
+    return (context.inheritFromWidgetOfExactType(_InheritedStateContainer)
+            as _InheritedStateContainer)
+        .data;
+  }
 }
 
-class OutrankHomeState extends State<OutrankHomePage> {
-  int _selectedIndex = 0;
+class _AppStateContainerState extends State<AppStateContainer> {
+  
+  String currentUserId;
 
-  Widget _rankingScreen = BlocProvider(
-            builder: (BuildContext context) => RankingBloc(ImmutableProvider.of(context)),
-            child: RankingScreen()
-          );
+  ThemeData _theme = Themes.getTheme();
+  int themeCode;
 
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
+  ThemeData get theme => _theme;
+
+  @override
+  initState() {
+    super.initState();
+    SharedPreferences.getInstance().then((sharedPrefs) {
+      setState(() {
+        themeCode = sharedPrefs.getInt(Constants.THEME_INDEX_KEY);
+        currentUserId = sharedPrefs.getString(Constants.USER_ID_KEY);
+
+        this._theme = Themes.getTheme(code: themeCode);
+      });
     });
-  }
-
-  Widget _getCurrentScreen() {
-    switch (_selectedIndex) {
-      case 0:
-        {
-          return _rankingScreen;
-        }
-      case 1:
-        {
-          return RulesScreen();
-        }
-      case 2:
-        {
-          return GamesScreen();
-        }
-      default:
-        {
-          throw Exception("Unexcected selected index: $_selectedIndex");
-        }
-    }
-  }
-
-  Widget _getOnboardedScreen() {
-    return Scaffold(
-      body: _getCurrentScreen(),
-      backgroundColor: Color(0xFF3B71DC),
-      appBar: EmptyAppBar(),
-      bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.score),
-            title: Text('Rankings'),
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.book),
-            title: Text('Trade Me Rules'),
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.games),
-            title: Text('My games'),
-          ),
-        ],
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
-      ),
-    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return _getOnboardedScreen();
+    return _InheritedStateContainer(
+      data: this,
+      child: widget.child,
+    );
   }
+
+  updateUserId(String userId) {
+    setState(() {
+      this.currentUserId = userId;
+    });
+    SharedPreferences.getInstance().then((sharedPref) {
+      sharedPref.setString(Constants.USER_ID_KEY, userId);
+    });
+  }
+}
+
+class _InheritedStateContainer extends InheritedWidget {
+  final _AppStateContainerState data;
+
+  const _InheritedStateContainer({
+    Key key,
+    @required this.data,
+    @required Widget child,
+  }) : super(key: key, child: child);
+
+  @override
+  bool updateShouldNotify(_InheritedStateContainer oldWidget) => true;
 }
