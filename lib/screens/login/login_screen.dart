@@ -3,6 +3,11 @@ import 'package:flutter/widgets.dart';
 import 'package:outrank/widgets/empty_app_bar.dart';
 
 class LoginScreen extends StatelessWidget {
+
+  _startOauth(BuildContext context) async {
+    // TODO - Push OAuth screen for result
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -22,7 +27,7 @@ class LoginScreen extends StatelessWidget {
             child: Image.network(
                 "https://a.slack-edge.com/02728/img/sign_in_with_slack.png"),
             onPressed: () {
-              print("SIgn in with Slack");
+              _startOauth(context);
             },
           )
         ],

@@ -30,3 +30,7 @@ There's a bunch of things I want to get done before being ready to go:
   * If new user (no name): Call function to populate account with Slack token. Firebase creates user in store with that ID if not exists, populates users name and profile image
   * Auth is rule-based based on Firebase UID
 
+* Make an OAuth screen with BloC pattern. This should be started, and asyncronously return some information. 
+  * Wire up OAuth Bloc to screen with BloC provider
+  * Add stuff to info.plist
+
