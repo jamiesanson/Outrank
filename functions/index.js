@@ -124,3 +124,32 @@ exports.onGamesUpdates = functions.firestore
         // Finally, delete the game.
         await change.after.ref.delete();
     });
+
+// ---------------------------------------------
+// User initialise Function
+// 
+// An HTTP endpoint for performing a Slack login. 
+// Expected body:
+// { "access_token": "...", "id": "...", "name": "...", "avatar": "..." }
+// Response:
+// { "custom_token": "..." }
+// ---------------------------------------------
+exports.performSlackLogin = functions.https.onRequest(async (req, resp) => {
+    if (req.method !== "POST") {
+        resp.status(405).send({ "error": "Method must be post" });
+        return;
+    }
+
+    const token = await admin.auth().createCustomToken(req.body.id);
+
+    // Create user with user ID
+    await firestore.doc("users/" + req.body.id).set(
+        {
+            "name": req.body.name,
+            "avatar": req.body.avatar,
+            "slack_access_token": req.body.access_token
+        }
+    );
+
+    resp.status(200).send({ "token": token });
+});
