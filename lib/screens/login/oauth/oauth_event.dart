@@ -7,6 +7,8 @@ abstract class OAuthEvent extends Equatable {
   OAuthEvent([List props = const []]) : super(props);
 }
 
+class BeginListening extends OAuthEvent {}
+
 class UrlChanged extends OAuthEvent {
   final String url;
 
@@ -17,14 +19,6 @@ class RedirectUrlCaught extends OAuthEvent {
   final String url;
 
   RedirectUrlCaught(this.url): super([url]);
-}
-
-class RetrievingToken extends OAuthEvent {}
-
-class TokenRetrieved extends OAuthEvent {
-  final Map<String, dynamic> token;
-
-  TokenRetrieved(this.token): super([token]);
 }
 
 class ErrorOccurred extends OAuthEvent {}

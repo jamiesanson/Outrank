@@ -1,9 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:flutter_oauth/lib/model/config.dart';
 import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
-import 'package:outrank/screens/login/oauth/token_request.dart';
 
 import 'oauth_event.dart';
 import 'oauth_state.dart';
@@ -15,19 +13,13 @@ import 'package:http/http.dart';
 class OAuthBloc extends Bloc<OAuthEvent, OAuthState> {
   StreamSubscription _subscription;
 
-  final Config config = Config(
-    "https://slack.com/oauth/authorize",
-    "https://slack.com/api/oauth.access",
-    "21360951026.681252925094",
-    "d27a189920eeb8d3e57ebf7cbd74b8eb",
-    "localhost:8080",
-    "code",
-    parameters: {"scope": "identity.basic,identity.avatar"}
-  );
+  final String _accessUrl = "https://slack.com/api/oauth.access";
+  final String _clientId = "21360951026.681252925094";
+  final String _clientSecret = "d27a189920eeb8d3e57ebf7cbd74b8eb";
 
   @override
   OAuthState get initialState => WebviewPrompt(
-      "https://slack.com/oauth/authorize?scope=identity.basic,identity.avatar&client_id=21360951026.681252925094");
+      "https://slack.com/oauth/authorize?scope=identity.basic,identity.avatar&client_id=$_clientId");
 
   @override
   void dispose() {
@@ -37,7 +29,8 @@ class OAuthBloc extends Bloc<OAuthEvent, OAuthState> {
 
   @override
   Stream<OAuthState> mapEventToState(OAuthEvent event) async* {
-    if (_subscription == null) {
+    if (event is BeginListening) {
+      _subscription?.cancel();
       _subscription = FlutterWebviewPlugin().onUrlChanged.listen((newUrl) {
         dispatch(UrlChanged(newUrl));
       });
@@ -45,7 +38,7 @@ class OAuthBloc extends Bloc<OAuthEvent, OAuthState> {
 
     // User input events
     if (event is UrlChanged) {
-      if (event.url.startsWith("localhost:8080")) {
+      if (event.url.startsWith("http://localhost:8080")) {
         dispatch(RedirectUrlCaught(event.url));
       }
     }
@@ -55,18 +48,16 @@ class OAuthBloc extends Bloc<OAuthEvent, OAuthState> {
       yield RequestingToken();
 
       try {
-        var code = UriData.fromString(event.url).parameters["code"];
-        var tokenRequest = TokenRequestDetails(config, code);
+        var code = Uri.parse(event.url).queryParameters["code"];
 
-        Response response = await post("${tokenRequest.url}",
-            body: json.encode(tokenRequest.params),
-            headers: tokenRequest.headers);
+        var url = Uri.https("slack.com", "/api/oauth.access", { "client_id": _clientId, "client_secret": _clientSecret, "code": code });
+        Response response = await get(url);
 
         Map<String, dynamic> token = json.decode(response.body);
 
         yield TokenRetrieved(token);
-
-      } catch (Exception) {
+      } catch (e) {
+        print(e);
         yield TokenNotRetrieved();
       }
     }

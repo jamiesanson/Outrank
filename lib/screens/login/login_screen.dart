@@ -1,11 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:outrank/widgets/empty_app_bar.dart';
+
+import 'oauth/oauth_bloc.dart';
+import 'oauth/oauth_screen.dart';
 
 class LoginScreen extends StatelessWidget {
 
   _startOauth(BuildContext context) async {
-    // TODO - Push OAuth screen for result
+    Map<String, dynamic> response = await Navigator.push(context, MaterialPageRoute(
+      builder: (context) => BlocProvider(
+        builder: (context) => OAuthBloc(), 
+        child: OAuthScreen())
+    ));
+
+    if (response != null) {
+      print("Token retrieved for user with ID: " + response["user"]["id"]);
+    }
   }
 
   @override
