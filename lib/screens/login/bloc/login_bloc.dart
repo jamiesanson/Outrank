@@ -28,25 +28,28 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
 
     if (event is SlackTokenGranted) {
       yield Loading();
+      try {
+        var response = event.response;
+        var tokenRequestBody = { 
+          "id": response["user"]["id"], 
+          "name": response["user"]["name"], 
+          "avatar": response["user"]["image_192"], 
+          "access_token": response["access_token"]};
 
-      var response = event.response;
-      var tokenRequestBody = { 
-        "id": response["user"]["id"], 
-        "name": response["user"]["name"], 
-        "avatar": response["user"]["image_192"], 
-        "access_token": response["access_token"]};
+        var tokenResponse = await post(_slackLoginFunction, body: tokenRequestBody);
 
-      var tokenResponse = await post(_slackLoginFunction, body: tokenRequestBody);
+        Map<String, dynamic> body = json.decode(tokenResponse.body);
+        var user = await FirebaseAuth.instance.signInWithCustomToken(token: body["token"]);
+        var updateInfo = UserUpdateInfo();
+        updateInfo.displayName = response["user"]["name"];
+        updateInfo.photoUrl = response["user"]["image_192"];
 
-      Map<String, dynamic> body = json.decode(tokenResponse.body);
-      var user = await FirebaseAuth.instance.signInWithCustomToken(token: body["token"]);
-      var updateInfo = UserUpdateInfo();
-      updateInfo.displayName = response["user"]["name"];
-      updateInfo.photoUrl = response["user"]["image_192"];
+        await user.updateProfile(updateInfo);
 
-      await user.updateProfile(updateInfo);
-
-      dispatch(UserSignedIn(updateInfo.displayName, updateInfo.photoUrl));
+        dispatch(UserSignedIn(updateInfo.displayName, updateInfo.photoUrl));
+      } catch (e) {
+        dispatch(LoginFailed());
+      }
     }
   }
 }

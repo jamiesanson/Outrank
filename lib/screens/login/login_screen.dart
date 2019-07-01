@@ -24,11 +24,7 @@ class LoginScreen extends StatelessWidget {
           }
 
           if (state is LoginError) {
-            Future.delayed(Duration(milliseconds: 100)).then((onValue) {
-              Scaffold.of(context).showSnackBar(SnackBar(
-                  content: Text("An error occurred - try again later")));
-            });
-            return _buildLoginIdle(context, _bloc);
+            return _buildLoginIdle(context, _bloc, promptError: true);
           }
 
           if (state is LoginSuccessful) {
@@ -63,29 +59,40 @@ class LoginScreen extends StatelessWidget {
         ));
   }
 
-  Widget _buildLoginIdle(BuildContext context, LoginBloc _bloc) {
+  Widget _buildLoginIdle(BuildContext context, LoginBloc _bloc,
+      {bool promptError}) {
     return Scaffold(
       appBar: EmptyAppBar(),
-      body: Center(
-          child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: <Widget>[
-          Image.network(
-            "https://www.trademe.co.nz/trust-safety/media/285465/kevin-nest-trademe.png",
-            width: 200,
-            height: 200,
-          ),
-          Text("Outrank"),
-          Text("Fun and competitive pool at Trade Me"),
-          FlatButton(
-            child: Image.network(
-                "https://a.slack-edge.com/02728/img/sign_in_with_slack.png"),
-            onPressed: () {
-              _startOauth(context, _bloc);
-            },
-          )
-        ],
-      )),
+      body: Builder(builder: (ctx) {
+        if (promptError == true) {
+          Future.delayed(Duration(milliseconds: 100)).then((onValue) {
+            Scaffold.of(ctx).showSnackBar(SnackBar(
+              content: Text("An error occurred - please try again"),
+            ));
+          });
+        }
+
+        return Center(
+            child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: <Widget>[
+            Image.network(
+              "https://www.trademe.co.nz/trust-safety/media/285465/kevin-nest-trademe.png",
+              width: 200,
+              height: 200,
+            ),
+            Text("Outrank"),
+            Text("Fun and competitive pool at Trade Me"),
+            FlatButton(
+              child: Image.network(
+                  "https://a.slack-edge.com/02728/img/sign_in_with_slack.png"),
+              onPressed: () {
+                _startOauth(context, _bloc);
+              },
+            )
+          ],
+        ));
+      }),
     );
   }
 
