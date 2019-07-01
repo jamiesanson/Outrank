@@ -1,10 +1,9 @@
 import 'dart:async';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:outrank/constants.dart';
 import 'package:outrank/main.dart';
 import 'package:outrank/widgets/empty_app_bar.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class SplashScreen extends StatefulWidget {
   @override
@@ -13,8 +12,7 @@ class SplashScreen extends StatefulWidget {
 
 class SplashScreenState extends State<SplashScreen> {
   checkLoggedInState() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    bool loggedIn = prefs.getString(Constants.USER_ID_KEY) != null;
+   bool loggedIn = (await FirebaseAuth.instance.currentUser()) != null;
 
     if (loggedIn) {
       Navigator.of(context).pushReplacementNamed('/home');

@@ -53,9 +53,6 @@ class AppStateContainer extends StatefulWidget {
 }
 
 class _AppStateContainerState extends State<AppStateContainer> {
-  
-  String currentUserId;
-
   ThemeData _theme = Themes.getTheme();
   int themeCode;
 
@@ -67,7 +64,6 @@ class _AppStateContainerState extends State<AppStateContainer> {
     SharedPreferences.getInstance().then((sharedPrefs) {
       setState(() {
         themeCode = sharedPrefs.getInt(Constants.THEME_INDEX_KEY);
-        currentUserId = sharedPrefs.getString(Constants.USER_ID_KEY);
 
         this._theme = Themes.getTheme(code: themeCode);
       });
@@ -80,15 +76,6 @@ class _AppStateContainerState extends State<AppStateContainer> {
       data: this,
       child: widget.child,
     );
-  }
-
-  updateUserId(String userId) {
-    setState(() {
-      this.currentUserId = userId;
-    });
-    SharedPreferences.getInstance().then((sharedPref) {
-      sharedPref.setString(Constants.USER_ID_KEY, userId);
-    });
   }
 }
 

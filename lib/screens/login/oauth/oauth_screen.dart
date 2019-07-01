@@ -2,10 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
-import 'package:outrank/screens/login/oauth/oauth_bloc.dart';
-import 'package:outrank/screens/login/oauth/oauth_state.dart';
-
-import 'oauth_event.dart';
+import 'package:outrank/screens/login/oauth/bloc/oauth_bloc.dart';
+import 'package:outrank/screens/login/oauth/bloc/oauth_event.dart';
+import 'package:outrank/screens/login/oauth/bloc/oauth_state.dart';
 
 class OAuthScreen extends StatelessWidget {
   @override
@@ -28,6 +27,7 @@ class OAuthScreen extends StatelessWidget {
           builder: (context, state) {
             if (state is WebviewPrompt) {
               _bloc.dispatch(BeginListening());
+              
               return WebviewScaffold(
                 appBar: AppBar(
                   title: Text("Sign in with Slack"),

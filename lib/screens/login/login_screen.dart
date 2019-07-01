@@ -1,40 +1,69 @@
-import 'dart:convert';
-
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:http/http.dart';
+import 'package:outrank/screens/login/bloc/login_bloc.dart';
+import 'package:outrank/screens/login/bloc/login_event.dart';
+import 'package:outrank/screens/login/bloc/login_state.dart';
+import 'package:outrank/screens/login/oauth/bloc/oauth_bloc.dart';
 import 'package:outrank/widgets/empty_app_bar.dart';
 
-import 'oauth/oauth_bloc.dart';
 import 'oauth/oauth_screen.dart';
 
 class LoginScreen extends StatelessWidget {
-
-  _startOauth(BuildContext context) async {
-    Map<String, dynamic> response = await Navigator.push(context, MaterialPageRoute(
-      builder: (context) => BlocProvider(
-        builder: (context) => OAuthBloc(), 
-        child: OAuthScreen())
-    ));
-
-    if (response != null) {
-      print("Token retrieved for user with ID: " + response["user"]["id"]);
-      var tokenRequestBody = { "id": response["user"]["id"], "name": response["user"]["name"], "avatar": response["user"]["image_192"], "access_token": response["access_token"]};
-      var tokenResponse = await post("https://us-central1-outrank-ba748.cloudfunctions.net/performSlackLogin", body: tokenRequestBody);
-
-      print("Got response ${tokenResponse.body}");
-      Map<String, dynamic> body = json.decode(tokenResponse.body);
-      var user = await FirebaseAuth.instance.signInWithCustomToken(token: body["token"]);
-
-      print("Signed in as ${user.uid}");
-    }
-
-  }
-
   @override
   Widget build(BuildContext context) {
+    final LoginBloc _bloc = BlocProvider.of<LoginBloc>(context);
+
+    return BlocBuilder(
+        bloc: _bloc,
+        builder: (context, state) {
+          if (state is Loading) {
+            return Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+
+          if (state is LoginError) {
+            Future.delayed(Duration(milliseconds: 100)).then((onValue) {
+              Scaffold.of(context).showSnackBar(SnackBar(
+                  content: Text("An error occurred - try again later")));
+            });
+            return _buildLoginIdle(context, _bloc);
+          }
+
+          if (state is LoginSuccessful) {
+            return _buildLoggedInView(context, _bloc, state.name, state.avatar);
+          }
+
+          return _buildLoginIdle(context, _bloc);
+        });
+  }
+
+  Widget _buildLoggedInView(
+      BuildContext context, LoginBloc _bloc, String name, String avatar) {
+    return Scaffold(
+        appBar: EmptyAppBar(),
+        body: Center(
+          child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: <Widget>[
+                Image.network(
+                  avatar,
+                  width: 200,
+                  height: 200,
+                ),
+                Text(name),
+                FlatButton(
+                  child: Text("CONTINUE", style: TextStyle(fontSize: 20.0)),
+                  onPressed: () {
+                    Navigator.of(context).pushReplacementNamed("/home");
+                  },
+                )
+              ]),
+        ));
+  }
+
+  Widget _buildLoginIdle(BuildContext context, LoginBloc _bloc) {
     return Scaffold(
       appBar: EmptyAppBar(),
       body: Center(
@@ -52,11 +81,25 @@ class LoginScreen extends StatelessWidget {
             child: Image.network(
                 "https://a.slack-edge.com/02728/img/sign_in_with_slack.png"),
             onPressed: () {
-              _startOauth(context);
+              _startOauth(context, _bloc);
             },
           )
         ],
       )),
     );
+  }
+
+  _startOauth(BuildContext context, LoginBloc bloc) async {
+    Map<String, dynamic> response = await Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => BlocProvider(
+                builder: (context) => OAuthBloc(), child: OAuthScreen())));
+
+    if (response == null) {
+      bloc.dispatch(LoginFailed());
+    } else {
+      bloc.dispatch(SlackTokenGranted(response));
+    }
   }
 }
