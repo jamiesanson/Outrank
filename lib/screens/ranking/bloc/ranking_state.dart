@@ -31,3 +31,5 @@ class RanksLoaded extends RankScreenState {
 }
 
 class RanksNotLoaded extends RankScreenState {}
+
+class JoinedGame extends RankScreenState {}

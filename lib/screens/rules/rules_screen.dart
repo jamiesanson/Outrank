@@ -53,14 +53,12 @@ class RulesState extends State<RulesScreen> {
   Widget build(BuildContext context) {
     if (_markdown == null) {
       return Scaffold(
-        backgroundColor: Colors.white,
         body: Center(
           child: CircularProgressIndicator(),
         ),
       );
     } else {
       return Scaffold(
-          backgroundColor: Colors.white,
           body: Markdown(
             data: _markdown,
           ));

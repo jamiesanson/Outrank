@@ -31,7 +31,7 @@ class Game {
       return GameState.in_progress;
     }
 
-    if ((op1ResultRef != null) != (op2ResultRef != null)) {
+    if (op1ResultRef != null || op2ResultRef != null) {
       return GameState.waiting_on_result;
     }
 

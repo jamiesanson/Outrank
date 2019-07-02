@@ -18,9 +18,11 @@ class LoginScreen extends StatelessWidget {
         bloc: _bloc,
         builder: (context, state) {
           if (state is Loading) {
-            return Center(
-              child: CircularProgressIndicator(),
-            );
+            return Scaffold(
+                appBar: EmptyAppBar(),
+                body: Center(
+                  child: CircularProgressIndicator(),
+                ));
           }
 
           if (state is LoginError) {

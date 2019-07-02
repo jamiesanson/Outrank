@@ -15,21 +15,32 @@ class RankingScreen extends StatelessWidget {
       _rankingBloc.dispatch(FetchAll());
     }
 
-    return BlocBuilder(
-      bloc: _rankingBloc,
-      builder: (context, state) {
-        if (state is RanksLoading) {
-          return Loading();
-        }
+    return BlocListener(
+        bloc: _rankingBloc,
+        listener: (context, state) {
+          if (state is JoinedGame) {
+            _launchGame(context);
+          }
+        },
+        child: BlocBuilder(
+          bloc: _rankingBloc,
+          builder: (context, state) {
+            if (state is RanksLoading) {
+              return Loading();
+            }
 
-        if (state is RanksNotLoaded) {
-          return NotLoaded();
-        }
+            if (state is RanksNotLoaded) {
+              return NotLoaded();
+            }
 
-        return Loaded();
-      },
-    );
+            return Loaded();
+          },
+        ));
   }
+}
+
+_launchGame(BuildContext context) async {
+
 }
 
 class Loading extends StatelessWidget {
@@ -88,28 +99,38 @@ class Loaded extends StatelessWidget {
 
   String _tableTextForGame(Game game) {
     switch (game.state) {
-      case GameState.empty: return "The table is free!";
-      case GameState.waiting_for_opponent: return "A game is about to start";
-      case GameState.in_progress: return "A game is in progress";
-      case GameState.waiting_on_result: return "A game is about to end";
-      default: return "Something weird happened. A game might be in progess";
+      case GameState.empty:
+        return "The table is free!";
+      case GameState.waiting_for_opponent:
+        return "A game is about to start";
+      case GameState.in_progress:
+        return "A game is in progress";
+      case GameState.waiting_on_result:
+        return "A game is about to end";
+      default:
+        return "Something weird happened. A game might be in progess";
     }
   }
 
   String _buttonTextForGame(Game game) {
     switch (game.state) {
-      case GameState.waiting_for_opponent: return game.op1Name != null ? "PLAY ${game.op1Name.toUpperCase()}" : "JOIN GAME";
-      default: return "START PLAYING";
+      case GameState.waiting_for_opponent:
+        return game.op1Name != null
+            ? "PLAY ${game.op1Name.toUpperCase()}"
+            : "JOIN GAME";
+      default:
+        return "START PLAYING";
     }
   }
 
   // Builds the page header widget, with illustration, start game action and
   // whether or not the table's in use
-  Widget _pageHeader(Office office, Game game, VoidCallback onStartPressed) {
-
+  Widget _pageHeader(BuildContext context, Office office, Game game,
+      VoidCallback onStartPressed) {
     String tableText = _tableTextForGame(game);
     String buttonText = _buttonTextForGame(game);
-    bool isButtonDisabled = game.state == GameState.in_progress || game.state == GameState.waiting_on_result;
+    bool isButtonDisabled = game.state == GameState.in_progress ||
+        game.state == GameState.waiting_on_result;
 
     return Column(
       children: <Widget>[
@@ -125,38 +146,40 @@ class Loaded extends StatelessWidget {
               child: Material(
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16.0)),
-                  color: Color(0xFF3B71DC),
+                  color: isButtonDisabled
+                      ? Theme.of(context).disabledColor
+                      : Theme.of(context).accentColor,
                   clipBehavior: Clip.antiAlias,
                   child: MaterialButton(
                     minWidth: 300,
                     height: 48,
                     child: Text(
                       buttonText,
-                      style: TextStyle(fontSize: 16, color: Colors.white),
+                      style: TextStyle(
+                          fontSize: 16, color: Theme.of(context).primaryColor),
                     ),
-                    onPressed: isButtonDisabled ? null : () {
-                      onStartPressed();
-                    },
+                    onPressed: isButtonDisabled
+                        ? null
+                        : () {
+                            onStartPressed();
+                          },
                   ))),
         )
       ],
     );
   }
 
-  Widget _getBackgroundView(Office currentOffice, List<Office> allOffices,
-      void Function(Office) onOfficeChosen) {
+  Widget _getBackgroundView(BuildContext context, Office currentOffice,
+      List<Office> allOffices, void Function(Office) onOfficeChosen) {
     return Scaffold(
         backgroundColor: Colors.transparent,
         body: ListView(
             children: allOffices.map((Office office) {
           return RadioListTile(
-              title: Text(
-                office.name,
-                style: TextStyle(color: Colors.white),
-              ),
+              title: Text(office.name),
               value: office.id,
               groupValue: currentOffice.id,
-              activeColor: Colors.white,
+              activeColor: Theme.of(context).accentColor,
               onChanged: (value) {
                 onOfficeChosen(office);
               });
@@ -176,15 +199,15 @@ class Loaded extends StatelessWidget {
             frontLayer: SingleChildScrollView(
               child: Column(
                 children: <Widget>[
-                  _pageHeader(state.office, state.currentGame, () {
+                  _pageHeader(context, state.office, state.currentGame, () {
                     _rankingBloc.dispatch(StartPlaying());
                   }),
                   _userList(state.users)
                 ],
               ),
             ),
-            backLayer:
-                _getBackgroundView(state.office, state.allOffices, (office) {
+            backLayer: _getBackgroundView(
+                context, state.office, state.allOffices, (office) {
               _rankingBloc.dispatch(OfficeChanged(office));
             }),
             frontTitle: Text(

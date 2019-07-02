@@ -23,8 +23,8 @@ class Themes {
           900: Colors.black87,
         },
       ),
-      accentColor: Colors.white,
-      disabledColor: Colors.green);
+      accentColor: Color(0xFFff80ab),
+      disabledColor: Color(0xFFf8bbd0));
 
   static final _light = ThemeData(
       primarySwatch: MaterialColor(
@@ -42,8 +42,8 @@ class Themes {
           900: Colors.white70,
         },
       ),
-      accentColor: Colors.black,
-      disabledColor: Colors.green);
+      accentColor: Color(0xFFc51162),
+      disabledColor: Color(0xFFf06292));
 
   static ThemeData getTheme({int code}) {
     switch (code) {

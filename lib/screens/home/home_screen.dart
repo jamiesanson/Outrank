@@ -51,7 +51,6 @@ class HomeState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: _getCurrentScreen(),
-      backgroundColor: Color(0xFF3B71DC),
       appBar: EmptyAppBar(),
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
@@ -70,6 +69,7 @@ class HomeState extends State<HomeScreen> {
         ],
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
+        selectedItemColor: Theme.of(context).accentColor,
       ),
     );
   }

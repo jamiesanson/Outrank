@@ -5,6 +5,7 @@ import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
 import 'package:outrank/screens/login/oauth/bloc/oauth_bloc.dart';
 import 'package:outrank/screens/login/oauth/bloc/oauth_event.dart';
 import 'package:outrank/screens/login/oauth/bloc/oauth_state.dart';
+import 'package:outrank/widgets/empty_app_bar.dart';
 
 class OAuthScreen extends StatelessWidget {
   @override
@@ -36,9 +37,11 @@ class OAuthScreen extends StatelessWidget {
               );
             }
 
-            return Center(
-              child: CircularProgressIndicator(),
-            );
+            return Scaffold(
+                appBar: EmptyAppBar(),
+                body: Center(
+                  child: CircularProgressIndicator(),
+                ));
           }),
     );
   }
