@@ -3,6 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:outrank/model/game.dart';
 import 'package:outrank/model/office.dart';
 import 'package:outrank/model/user.dart';
+import 'package:outrank/screens/match/bloc/match_bloc.dart';
+import 'package:outrank/screens/match/match_screen.dart';
 import 'package:outrank/screens/ranking/bloc/bloc.dart';
 import 'package:outrank/widgets/backdrop.dart';
 import 'package:outrank/widgets/empty_app_bar.dart';
@@ -18,9 +20,6 @@ class RankingScreen extends StatelessWidget {
     return BlocListener(
         bloc: _rankingBloc,
         listener: (context, state) {
-          if (state is JoinedGame) {
-            _launchGame(context);
-          }
         },
         child: BlocBuilder(
           bloc: _rankingBloc,
@@ -37,10 +36,6 @@ class RankingScreen extends StatelessWidget {
           },
         ));
   }
-}
-
-_launchGame(BuildContext context) async {
-
 }
 
 class Loading extends StatelessWidget {
@@ -186,6 +181,13 @@ class Loaded extends StatelessWidget {
         }).toList()));
   }
 
+  _launchGame(BuildContext context, Office office) {
+    Navigator.of(context).push(MaterialPageRoute(
+      builder: (context) => BlocProvider(
+                builder: (context) => MatchBloc(), child: MatchScreen(office))
+    ));
+  }
+
   @override
   Widget build(BuildContext context) {
     final RankingBloc _rankingBloc = BlocProvider.of<RankingBloc>(context);
@@ -200,7 +202,7 @@ class Loaded extends StatelessWidget {
               child: Column(
                 children: <Widget>[
                   _pageHeader(context, state.office, state.currentGame, () {
-                    _rankingBloc.dispatch(StartPlaying());
+                    _launchGame(context, state.office);
                   }),
                   _userList(state.users)
                 ],

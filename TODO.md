@@ -34,3 +34,6 @@ There's a bunch of things I want to get done before being ready to go:
   * Wire up OAuth Bloc to screen with BloC provider
   * Add stuff to info.plist
 
+* Match screen needs to use CloudFunctions Flutter SDK
+* Need a join game function
+

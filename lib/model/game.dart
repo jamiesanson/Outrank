@@ -3,6 +3,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Game {
 
+  final String id;
+
   final DocumentReference officeRef;
 
   final DocumentReference op1Ref;
@@ -43,6 +45,7 @@ class Game {
   }
 
   Game._(): 
+    this.id = null,
     this.officeRef = null,
     this.op1Ref = null,
     this.op1Name = null,
@@ -52,6 +55,7 @@ class Game {
     this.op2ResultRef = null;
 
   Game(DocumentSnapshot snapshot) : 
+    this.id = snapshot.documentID,
     this.officeRef = snapshot.data["office"],
     this.op1Ref = snapshot.data["op_1"],
     this.op1Name = snapshot.data["op_1_name"],
