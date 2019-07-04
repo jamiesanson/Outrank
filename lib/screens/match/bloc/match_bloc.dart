@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:bloc/bloc.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart';
 import 'package:outrank/model/model.dart';
@@ -16,31 +18,54 @@ class MatchBloc extends Bloc<MatchEvent, MatchState> {
 
   StreamSubscription _subscription;  
 
+  String _gameId;
+
   @override
   MatchState get initialState => LoadingGame();
+
+  Stream<Game> _getGameStream(String officeId) {
+    return Firestore.instance.collection('games').snapshots().map((query) {
+        return query.documents.map((doc) {
+          return doc == null ? null : Game(doc);
+        }).toList();
+      }).map((list) => list.firstWhere((game) => game.officeRef.documentID == officeId));
+  }
+
+  Future<Game> _getCurrentGame() async {
+    return Game(await Firestore.instance.document("games/$_gameId").snapshots().first);
+  }
 
   @override
   Stream<MatchState> mapEventToState(MatchEvent event) async* {
     if (event is OfficeProvided) {
       _subscription?.cancel();
-      _subscription = _repository.game.listen((game) {
+      _subscription = _getGameStream(event.office.id).listen((game) {
         dispatch(GameUpdated(game));
       });
+
+      // Check if a game exists
+      var game = (await _repository.allGames.first).firstWhere((game) => game.officeRef.documentID == event.office.id, orElse: () => null);
+
+      var params = game != null ? { "game_id": game.id} : { "office_id": event.office.id }; 
+      // Join or start game
+      await CloudFunctions.instance.getHttpsCallable(
+        functionName: "joinOrStartGame"
+      ).call(params);
     }
 
     if (event is ResultReported) {
-      var currentGame = await _repository.game.first;
+      var currentGame = await _getCurrentGame();
       _reportResult(currentGame, event.iWon);
     }
 
     if (event is ReadyToReport) {
-      var currentGame = await _repository.game.first;
+      var currentGame = await _getCurrentGame();
       yield ReportingResult(await _opponentName(currentGame));
     }
 
     if (event is GameUpdated) {
       Game currentGame = event.game;
-      print("Game updated: $currentGame");
+      _gameId = currentGame.id;
 
       switch (currentGame.state) {
         case GameState.waiting_for_opponent:
@@ -94,7 +119,10 @@ class MatchBloc extends Bloc<MatchEvent, MatchState> {
     };
 
     try {
-      await post(_resultFunction, body: body);
+      // Join or start game
+      await CloudFunctions.instance.getHttpsCallable(
+        functionName: "reportGameResult"
+      ).call(body);
     } catch (Exception) {}
 
   }
