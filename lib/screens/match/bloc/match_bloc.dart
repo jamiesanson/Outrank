@@ -46,11 +46,17 @@ class MatchBloc extends Bloc<MatchEvent, MatchState> {
       // Check if a game exists
       var game = (await _repository.allGames.first).firstWhere((game) => game.officeRef.documentID == event.office.id, orElse: () => null);
 
-      var params = game != null ? { "game_id": game.id} : { "office_id": event.office.id }; 
-      // Join or start game
-      await CloudFunctions.instance.getHttpsCallable(
-        functionName: "joinOrStartGame"
-      ).call(params);
+      // Are we already in the game? If not, start or join it
+      String uid = (await FirebaseAuth.instance.currentUser()).uid;
+      var inGame = game.op1Ref == Firestore.instance.document("users/$uid");
+      
+      if (!inGame) {
+        var params = game != null ? { "game_id": game.id} : { "office_id": event.office.id }; 
+        // Join or start game
+        await CloudFunctions.instance.getHttpsCallable(
+          functionName: "joinOrStartGame"
+        ).call(params);
+      }
     }
 
     if (event is ResultReported) {
