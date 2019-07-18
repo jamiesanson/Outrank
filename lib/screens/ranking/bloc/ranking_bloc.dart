@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:outrank/model/model.dart';
 import 'package:outrank/screens/ranking/bloc/bloc.dart';
 import 'package:bloc/bloc.dart';
@@ -48,8 +50,11 @@ class RankingBloc extends Bloc<RankScreenEvent, RankScreenState> {
         List<Office> allOffices = await _rankingRepository.allOffices.first;
         Game currentGame = await _rankingRepository.game.isEmpty ? null : await _rankingRepository.game.first;
         List<User> topUsers = await _rankingRepository.topUsers.first;
+        
+        String userId = (await FirebaseAuth.instance.currentUser()).uid;
+        DocumentReference currentUser = Firestore.instance.document("users/" + userId);
 
-        yield RanksLoaded(currentOffice, allOffices, currentGame, topUsers);
+        yield RanksLoaded(currentOffice, allOffices, currentGame, topUsers, currentUser);
 
         // Clear subscriptions and observe repo
         subscriptions.clear();

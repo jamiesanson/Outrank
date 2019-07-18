@@ -3,30 +3,6 @@ const admin = require('firebase-admin');
 
 const firestore = admin.firestore();
 
-const ensureLoggedIn = async (req, res) => {
-    let idToken;
-    if (req.headers.authorization && req.headers.authorization.startsWith('Bearer ')) {
-        console.log('Found "Authorization" header');
-        // Read the ID Token from the Authorization header.
-        idToken = req.headers.authorization.split('Bearer ')[1];
-    } else {
-        console.error('No Firebase ID token was passed as a Bearer token in the Authorization header.');
-        res.status(403).send('Unauthorized');
-        return false;
-    }
-
-    try {
-        const decodedIdToken = await admin.auth().verifyIdToken(idToken);
-        console.log('ID Token correctly decoded', decodedIdToken);
-        req.user = decodedIdToken;
-        return true;
-    } catch (error) {
-        console.error('Error while verifying Firebase ID token:', error);
-        res.status(403).send('Unauthorised');
-        return false;
-    }
-};
-
 // --------------------------------------------------------------------------
 // |_| _|_ _|_ |) . This section has all the HTTP function exports, exported
 // | |  |   |  |  . as an espress app.
@@ -61,46 +37,38 @@ exports.performSlackLogin = functions.https.onRequest(async (req, resp) => {
     resp.status(200).send({ "token": token });
 });
 
-exports.reportGameResult = functions.https.onRequest(async (req, resp) => {
-    if (req.method !== "POST") {
-        resp.status(405).send({ "error": "Method must be post" });
-        return;
-    }
-
-    if (!await ensureLoggedIn(req, resp)) {
-        return;
-    }
-
+exports.reportGameResult = functions.https.onCall(async (data, context) => {
     // Get the game
-    const gameRef = firestore.doc("games/" + req.body.game_id);
+    const gameRef = firestore.doc("games/" + data.game_id);
 
     // Get the opponents
-    const op1Id = (await gameRef.get()).data.op_1.path.split('/').last();
-    const op2Id = (await gameRef.get()).data.op_2.path.split('/').last();
-    const isCurrentUserOp1 = req.user.uid === op1Id;
+    const gameData = (await gameRef.get()).data();
+    console.log("Reporting result for game", gameData);
+
+    const op1Id = gameData.op_1.path.split('/').slice(-1)[0];
+    const op2Id = gameData.op_2.path.split('/').slice(-1)[0];
+    const isCurrentUserOp1 = context.auth.uid === op1Id;
 
     let winnerId;
-    if (req.body.current_user_won) {
+    if (data.current_user_won) {
         winnerId = isCurrentUserOp1 ? op1Id : op2Id;
     } else {
         winnerId = isCurrentUserOp1 ? op2Id : op1Id;
     }
          
     // Update the game with the result
-    let data;
+    let updateData;
     if (isCurrentUserOp1) {
-        data = {
+        updateData = {
             "op_1_result": winnerId
         };
     } else {
-        data = {
+        updateData = {
             "op_2_result": winnerId
         };
     }
 
-    await firestore.doc("games/" + req.body.game_id).set(data, { merge: true });
-    
-    resp.status(200).send();
+    await gameRef.set(updateData, { merge: true });
 });
 
 exports.joinOrStartGame = functions.https.onCall(async (data, context) => {

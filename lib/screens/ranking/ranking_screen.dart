@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:outrank/model/game.dart';
@@ -19,8 +20,7 @@ class RankingScreen extends StatelessWidget {
 
     return BlocListener(
         bloc: _rankingBloc,
-        listener: (context, state) {
-        },
+        listener: (context, state) {},
         child: BlocBuilder(
           bloc: _rankingBloc,
           builder: (context, state) {
@@ -107,12 +107,14 @@ class Loaded extends StatelessWidget {
     }
   }
 
-  String _buttonTextForGame(Game game) {
+  String _buttonTextForGame(Game game, DocumentReference currentUserRef) {
     switch (game.state) {
       case GameState.waiting_for_opponent:
-        return game.op1Name != null
-            ? "PLAY ${game.op1Name.toUpperCase()}"
-            : "JOIN GAME";
+        return game.op1Ref == currentUserRef
+            ? "CONTINUE GAME"
+            : game.op1Name != null
+                ? "PLAY ${game.op1Name.toUpperCase()}"
+                : "JOIN GAME";
       default:
         return "START PLAYING";
     }
@@ -121,9 +123,9 @@ class Loaded extends StatelessWidget {
   // Builds the page header widget, with illustration, start game action and
   // whether or not the table's in use
   Widget _pageHeader(BuildContext context, Office office, Game game,
-      VoidCallback onStartPressed) {
+      DocumentReference currentUser, VoidCallback onStartPressed) {
     String tableText = _tableTextForGame(game);
-    String buttonText = _buttonTextForGame(game);
+    String buttonText = _buttonTextForGame(game, currentUser);
     bool isButtonDisabled = game.state == GameState.in_progress ||
         game.state == GameState.waiting_on_result;
 
@@ -183,9 +185,8 @@ class Loaded extends StatelessWidget {
 
   _launchGame(BuildContext context, Office office) {
     Navigator.of(context).push(MaterialPageRoute(
-      builder: (context) => BlocProvider(
-                builder: (context) => MatchBloc(), child: MatchScreen(office))
-    ));
+        builder: (context) => BlocProvider(
+            builder: (context) => MatchBloc(), child: MatchScreen(office))));
   }
 
   @override
@@ -201,7 +202,8 @@ class Loaded extends StatelessWidget {
             frontLayer: SingleChildScrollView(
               child: Column(
                 children: <Widget>[
-                  _pageHeader(context, state.office, state.currentGame, () {
+                  _pageHeader(context, state.office, state.currentGame,
+                      state.currentUserReference, () {
                     _launchGame(context, state.office);
                   }),
                   _userList(state.users)
