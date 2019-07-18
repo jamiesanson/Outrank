@@ -7,7 +7,10 @@ class User {
 
   final int gameCount;
 
+  final double rating;
+
   User(DocumentSnapshot snapshot) : 
     this.name = snapshot.data["name"],
-    this.gameCount = snapshot.data["gameCount"];
+    this.gameCount = snapshot.data["gameCount"],
+    this.rating = snapshot.data["rating"];
 }

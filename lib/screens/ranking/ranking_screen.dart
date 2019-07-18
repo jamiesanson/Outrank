@@ -82,8 +82,8 @@ class Loaded extends StatelessWidget {
       Text("This month's top players"),
       ...users.map((User user) {
         String subtitleText = user.gameCount != null
-            ? "${user.gameCount} games played this month"
-            : "No games this month";
+            ? "${user.gameCount} games played this month. Rating: ${user.rating}"
+            : "No games this month. Rating: ${user.rating}";
         return ListTile(
           title: Text(user.name),
           subtitle: Text(subtitleText),
