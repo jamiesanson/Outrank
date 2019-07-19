@@ -76,20 +76,24 @@ exports.joinOrStartGame = functions.https.onCall(async (data, context) => {
 
     let updateData;
     if (data.game_id) {
+        var op2Doc = await firestore.doc("users/" + context.auth.uid).get();
+
         // Join as OP2
         updateData = {
-            "op_2": await firestore.doc("users/" + context.auth.uid),
-            "op_2_name": context.auth.token.name
+            "op_2": op2Doc.ref,
+            "op_2_name": op2Doc.data().name
         };
 
         await firestore.doc("games/" + data.game_id).set(updateData, { merge: true });
         console.log("Joined game " + data.game_id);
     } else if (data.office_id) {
+        var op1doc = await firestore.doc("users/" + context.auth.uid).get();
+        
         // Start as OP1, with office ref
         updateData = {
-            "office": await firestore.doc("offices/" + data.office_id),
-            "op_1": await firestore.doc("users/" + context.auth.uid), 
-            "op_1_name": context.auth.token.name
+            "office": firestore.doc("offices/" + data.office_id),
+            "op_1": op1doc.ref, 
+            "op_1_name": op1doc.data().name
         };
 
         const randomstring = require('randomstring');
