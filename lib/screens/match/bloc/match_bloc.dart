@@ -48,8 +48,8 @@ class MatchBloc extends Bloc<MatchEvent, MatchState> {
 
       // Are we already in the game? If not, start or join it
       String uid = (await FirebaseAuth.instance.currentUser()).uid;
-      var inGame = game.op1Ref == Firestore.instance.document("users/$uid");
-      
+      var inGame = game != null && game.op1Ref == Firestore.instance.document("users/$uid");
+
       if (!inGame) {
         var params = game != null ? { "game_id": game.id} : { "office_id": event.office.id }; 
         // Join or start game
