@@ -4,7 +4,6 @@ import 'package:bloc/bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:http/http.dart';
 import 'package:outrank/model/model.dart';
 import 'package:outrank/screens/match/bloc/match_event.dart';
 import 'package:outrank/screens/match/bloc/match_state.dart';
@@ -105,9 +104,9 @@ class MatchBloc extends Bloc<MatchEvent, MatchState> {
   Future<String> _opponentName(Game game) async {
     FirebaseUser user = await FirebaseAuth.instance.currentUser();
     if (game.op1Ref.documentID == user.uid) {
-      return game.op1Name;
-    } else {
       return game.op2Name;
+    } else {
+      return game.op1Name;
     }
   }
 
@@ -115,7 +114,7 @@ class MatchBloc extends Bloc<MatchEvent, MatchState> {
     FirebaseUser user = await FirebaseAuth.instance.currentUser();
     bool currentUserIsOp1 = game.op1Ref.documentID == user.uid;
 
-    return currentUserIsOp1 ? game.op1ResultRef == null : game.op2ResultRef == null;
+    return currentUserIsOp1 ? game.op1Result == null : game.op2Result == null;
   }
 
   Future _reportResult(Game game, bool iWon) async {

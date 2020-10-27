@@ -13,9 +13,9 @@ class Game {
   final DocumentReference op2Ref;
   final String op2Name;
 
-  final DocumentReference op1ResultRef;
+  final String op1Result;
 
-  final DocumentReference op2ResultRef;
+  final String op2Result;
 
   GameState get state => _processState();
 
@@ -29,11 +29,11 @@ class Game {
       return GameState.waiting_for_opponent;
     }
 
-    if (op1Ref != null && op2Ref != null && op1ResultRef == null && op2ResultRef == null) {
+    if (op1Ref != null && op2Ref != null && op1Result == null && op2Result == null) {
       return GameState.in_progress;
     }
 
-    if (op1ResultRef != null || op2ResultRef != null) {
+    if (op1Result != null || op2Result != null) {
       return GameState.waiting_on_result;
     }
 
@@ -51,8 +51,8 @@ class Game {
     this.op1Name = null,
     this.op2Ref = null,
     this.op2Name = null,
-    this.op1ResultRef = null,
-    this.op2ResultRef = null;
+    this.op1Result = null,
+    this.op2Result = null;
 
   Game(DocumentSnapshot snapshot) : 
     this.id = snapshot.documentID,
@@ -61,8 +61,8 @@ class Game {
     this.op1Name = snapshot.data["op_1_name"],
     this.op2Ref = snapshot.data["op_2"],
     this.op2Name = snapshot.data["op_2_name"],
-    this.op1ResultRef = snapshot.data["op_1_result"],
-    this.op2ResultRef = snapshot.data["op_1_result"];
+    this.op1Result = snapshot.data["op_1_result"],
+    this.op2Result = snapshot.data["op_1_result"];
 }
 
 enum GameState {
