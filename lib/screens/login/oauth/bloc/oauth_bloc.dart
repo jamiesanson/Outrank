@@ -13,7 +13,6 @@ import 'package:http/http.dart';
 class OAuthBloc extends Bloc<OAuthEvent, OAuthState> {
   StreamSubscription _subscription;
 
-  final String _accessUrl = "https://slack.com/api/oauth.access";
   final String _clientId = "21360951026.681252925094";
   final String _clientSecret = "d27a189920eeb8d3e57ebf7cbd74b8eb";
 

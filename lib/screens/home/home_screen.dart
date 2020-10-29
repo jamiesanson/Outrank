@@ -56,15 +56,15 @@ class HomeState extends State<HomeScreen> {
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.score),
-            title: Text('Rankings'),
+            label: 'Rankings',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.book),
-            title: Text('Trade Me Rules'),
+            label: 'Trade Me Rules',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.games),
-            title: Text('My games'),
+            label: 'My games',
           ),
         ],
         currentIndex: _selectedIndex,

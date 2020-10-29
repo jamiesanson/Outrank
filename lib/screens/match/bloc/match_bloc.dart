@@ -11,8 +11,6 @@ import 'package:outrank/screens/ranking/bloc/ranking_repository.dart';
 
 class MatchBloc extends Bloc<MatchEvent, MatchState> {
 
-  final String _resultFunction = "";
-
   final RankingRepository _repository = RankingRepository();
 
   StreamSubscription _subscription;  
