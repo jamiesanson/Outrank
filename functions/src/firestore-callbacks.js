@@ -84,7 +84,7 @@ exports.onGamesUpdates = functions.firestore
         }
 
         // If there's conflicting results, update game counts then delete the document and return
-        if ((await newValue.op_1_result.get()).id !== (await newValue.op_2_result.get()).id) {
+        if (newValue.op_1_result !== newValue.op_2_result) {
             console.log("Conflicting results for game with results " + newValue.op_1_result + ", " + newValue.op_2_result + ", incrementing game counts and removing game.");
             await newValue.op_1.update({
                 "gameCount": ((await newValue.op_1.get()).data().gameCount || 0) + 1
@@ -99,7 +99,7 @@ exports.onGamesUpdates = functions.firestore
         }
 
         // Filled out fully with non-conflicting results. Add a new result.
-        const winnerPath = newValue.op_1_result.path;
+        const winnerPath = "/users/" + newValue.op_1_result;
         const op_1_winner = newValue.op_1.path === winnerPath;
 
         if (op_1_winner) {

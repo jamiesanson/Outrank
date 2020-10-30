@@ -11,7 +11,7 @@ admin.initializeApp({
 
 const storage = admin.storage().bucket(bucketUrl);
 
-// Recursively traverse data/ and upload in the same pattern to Firebase storage
+// Recursively traverse static/ and upload in the same pattern to Firebase storage
 var walkSync = function(dir, filelist) {
     var path = path || require('path');
     var fs = fs || require('fs'),
@@ -19,10 +19,10 @@ var walkSync = function(dir, filelist) {
     filelist = filelist || [];
     files.forEach(function(file) {
         if (fs.statSync(path.join(dir, file)).isDirectory()) {
-        filelist = walkSync(path.join(dir, file), filelist);
+            filelist = walkSync(path.join(dir, file), filelist);
         }
         else {
-        filelist.push(file);
+            filelist.push(file);
         }
     });
     return filelist;
